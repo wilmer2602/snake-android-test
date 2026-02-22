@@ -1,0 +1,48 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up JDK
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+
+    - name: Setup Android SDK
+      uses: android-actions/setup-android@v3
+
+    - name: Grant execute permission to gradlew
+      run: chmod +x ./gradlew || true
+
+    - name: Build Release APK
+      run: ./gradlew :app:assembleRelease
+
+    - name: Upload APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: snake-apk
+        path: app/build/outputs/apk/release/app-release.apk
+
+    - name: Create Release
+      if: github.event_name == 'push' && github.ref_name == 'main'
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        TAG="v1.0.0"
+        gh release create $TAG app/build/outputs/apk/release/app-release.apk \
+          --title "Snake App $TAG" \
+          --notes "Initial release of simple Snake game for Android"
