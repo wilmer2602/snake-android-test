@@ -103,50 +103,24 @@ class MainActivity : Activity() {
         gameView = SnakeView(this)
 
         // 底部控制区
-        val controlLayout = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
+        val controlLayout = FrameLayout(this).apply {
             setBackgroundColor(Color.parseColor("#2d2d2d"))
             setPadding(16, 20, 16, 20)
-        }
-
-        // 功能按钮行（顶部）
-        val functionRow = LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.CENTER
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
-            ).apply { bottomMargin = 20 }
+            )
         }
 
-        val restartBtn = createSmallButton("🔄", Color.parseColor("#ff6b6b")) {
-            gameView.reset()
-            updateScore()
-        }
-
-        val pauseBtn = createSmallButton("⏸", Color.parseColor("#4ecdc4")) {
-            gameView.togglePause()
-        }
-
-        val speedBtn = createSmallButton("⚡", Color.parseColor("#95e1d3")) {
-            gameView.increaseSpeed()
-            updateSpeed()
-        }
-
-        val modeBtn = createSmallButton("♾", Color.parseColor("#f38181")) {
-            gameView.toggleEndlessMode()
-            updateMode()
-        }
-
-        functionRow.addView(restartBtn)
-        functionRow.addView(pauseBtn)
-        functionRow.addView(speedBtn)
-        functionRow.addView(modeBtn)
-
-        // 方向键区域（大按钮）
+        // 方向键容器（居中）
         val arrowContainer = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             gravity = Gravity.CENTER
+            layoutParams = FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.WRAP_CONTENT,
+                FrameLayout.LayoutParams.WRAP_CONTENT,
+                Gravity.CENTER
+            )
         }
 
         val arrowRow1 = LinearLayout(this).apply {
@@ -162,14 +136,29 @@ class MainActivity : Activity() {
             gravity = Gravity.CENTER
         }
 
-        val btnUp = createArrowButton("↑") { gameView.setDirection(0, -1) }
-        val btnLeft = createArrowButton("←") { gameView.setDirection(-1, 0) }
-        val btnRight = createArrowButton("→") { gameView.setDirection(1, 0) }
-        val btnDown = createArrowButton("↓") { gameView.setDirection(0, 1) }
+        val btnUp = createArrowButton("↑") { 
+            gameView.setDirection(0, -1)
+            gameView.disableAutoWalk()
+        }
+        val btnLeft = createArrowButton("←") { 
+            gameView.setDirection(-1, 0)
+            gameView.disableAutoWalk()
+        }
+        val btnRight = createArrowButton("→") { 
+            gameView.setDirection(1, 0)
+            gameView.disableAutoWalk()
+        }
+        val btnDown = createArrowButton("↓") { 
+            gameView.setDirection(0, 1)
+            gameView.disableAutoWalk()
+        }
+        val btnCenter = createCenterButton("🤖") {
+            gameView.toggleAutoWalk()
+        }
 
         arrowRow1.addView(btnUp)
         arrowRow2.addView(btnLeft)
-        arrowRow2.addView(createSpacerButton())
+        arrowRow2.addView(btnCenter)
         arrowRow2.addView(btnRight)
         arrowRow3.addView(btnDown)
 
@@ -177,8 +166,50 @@ class MainActivity : Activity() {
         arrowContainer.addView(arrowRow2)
         arrowContainer.addView(arrowRow3)
 
-        controlLayout.addView(functionRow)
+        // 左上角：重置
+        val restartBtn = createCornerButton("🔄", Color.parseColor("#ff6b6b")) {
+            gameView.reset()
+            updateScore()
+        }.apply {
+            layoutParams = FrameLayout.LayoutParams(
+                70, 70, Gravity.TOP or Gravity.START
+            )
+        }
+
+        // 右上角：暂停
+        val pauseBtn = createCornerButton("⏸", Color.parseColor("#4ecdc4")) {
+            gameView.togglePause()
+        }.apply {
+            layoutParams = FrameLayout.LayoutParams(
+                70, 70, Gravity.TOP or Gravity.END
+            )
+        }
+
+        // 左下角：加速
+        val speedBtn = createCornerButton("⚡", Color.parseColor("#95e1d3")) {
+            gameView.increaseSpeed()
+            updateSpeed()
+        }.apply {
+            layoutParams = FrameLayout.LayoutParams(
+                70, 70, Gravity.BOTTOM or Gravity.START
+            )
+        }
+
+        // 右下角：模式
+        val modeBtn = createCornerButton("♾", Color.parseColor("#f38181")) {
+            gameView.toggleEndlessMode()
+            updateMode()
+        }.apply {
+            layoutParams = FrameLayout.LayoutParams(
+                70, 70, Gravity.BOTTOM or Gravity.END
+            )
+        }
+
         controlLayout.addView(arrowContainer)
+        controlLayout.addView(restartBtn)
+        controlLayout.addView(pauseBtn)
+        controlLayout.addView(speedBtn)
+        controlLayout.addView(modeBtn)
 
         gameContainer.addView(gameView)
         mainLayout.addView(infoLayout)
@@ -196,33 +227,32 @@ class MainActivity : Activity() {
             textSize = 36f
             setTextColor(Color.WHITE)
             setBackgroundColor(Color.parseColor("#3d3d3d"))
-            layoutParams = LinearLayout.LayoutParams(140, 140).apply {
-                setMargins(6, 6, 6, 6)
+            layoutParams = LinearLayout.LayoutParams(120, 120).apply {
+                setMargins(4, 4, 4, 4)
             }
             setOnClickListener { onClick() }
         }
     }
 
-    private fun createSpacerButton(): Button {
+    private fun createCenterButton(text: String, onClick: () -> Unit): Button {
         return Button(this).apply {
-            text = ""
-            isEnabled = false
-            setBackgroundColor(Color.TRANSPARENT)
-            layoutParams = LinearLayout.LayoutParams(140, 140).apply {
-                setMargins(6, 6, 6, 6)
+            this.text = text
+            textSize = 28f
+            setTextColor(Color.WHITE)
+            setBackgroundColor(Color.parseColor("#ff9800"))
+            layoutParams = LinearLayout.LayoutParams(120, 120).apply {
+                setMargins(4, 4, 4, 4)
             }
+            setOnClickListener { onClick() }
         }
     }
 
-    private fun createSmallButton(text: String, color: Int, onClick: () -> Unit): Button {
+    private fun createCornerButton(text: String, color: Int, onClick: () -> Unit): Button {
         return Button(this).apply {
             this.text = text
-            textSize = 20f
+            textSize = 24f
             setTextColor(Color.WHITE)
             setBackgroundColor(color)
-            layoutParams = LinearLayout.LayoutParams(80, 80).apply {
-                setMargins(6, 0, 6, 0)
-            }
             setOnClickListener { onClick() }
         }
     }

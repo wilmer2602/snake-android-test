@@ -49,6 +49,7 @@ class SnakeView(context: Context) : View(context) {
     private var isEndlessMode = false
     private var startTime = 0L
     private var elapsedTime = 0L
+    private var isAutoWalk = false
 
     init {
         val thread = object : Thread() {
@@ -76,6 +77,36 @@ class SnakeView(context: Context) : View(context) {
     private fun move() {
         if (startTime == 0L) startTime = System.currentTimeMillis()
         elapsedTime = System.currentTimeMillis() - startTime
+        
+        // 自动游走：智能寻找食物
+        if (isAutoWalk) {
+            val head = snake.first()
+            val dx = food.first - head.first
+            val dy = food.second - head.second
+            
+            // 优先朝食物方向移动
+            if (Math.abs(dx) > Math.abs(dy)) {
+                if (dx > 0 && direction != Pair(-1, 0)) {
+                    direction = Pair(1, 0)
+                } else if (dx < 0 && direction != Pair(1, 0)) {
+                    direction = Pair(-1, 0)
+                } else if (dy > 0 && direction != Pair(0, -1)) {
+                    direction = Pair(0, 1)
+                } else if (dy < 0 && direction != Pair(0, 1)) {
+                    direction = Pair(0, -1)
+                }
+            } else {
+                if (dy > 0 && direction != Pair(0, -1)) {
+                    direction = Pair(0, 1)
+                } else if (dy < 0 && direction != Pair(0, 1)) {
+                    direction = Pair(0, -1)
+                } else if (dx > 0 && direction != Pair(-1, 0)) {
+                    direction = Pair(1, 0)
+                } else if (dx < 0 && direction != Pair(1, 0)) {
+                    direction = Pair(-1, 0)
+                }
+            }
+        }
         
         val head = snake.first()
         var newHead = Pair(head.first + direction.first, head.second + direction.second)
@@ -123,6 +154,7 @@ class SnakeView(context: Context) : View(context) {
         speedLevel = 1
         startTime = 0L
         elapsedTime = 0L
+        isAutoWalk = false
     }
 
     fun getScore(): Int = score
@@ -142,6 +174,14 @@ class SnakeView(context: Context) : View(context) {
     
     fun increaseSpeed() {
         if (speedLevel < 5) speedLevel++
+    }
+    
+    fun toggleAutoWalk() {
+        isAutoWalk = !isAutoWalk
+    }
+    
+    fun disableAutoWalk() {
+        isAutoWalk = false
     }
     
     fun setDirection(dx: Int, dy: Int) {
