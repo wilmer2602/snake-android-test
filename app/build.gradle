@@ -15,6 +15,16 @@ android {
         versionName "1.0.1"
     }
 
+    signingConfigs {
+        release {
+            // 从 environment variables 读取（由 GitHub Actions 注入）
+            storeFile file(System.getenv("SIGNING_KEYSTORE_PATH") ?: "snake-release-key.keystore")
+            storePassword System.getenv("SIGNING_KEYSTORE_PASSWORD") ?: "OpenClaw123"
+            keyAlias System.getenv("SIGNING_KEY_ALIAS") ?: "snake-key"
+            keyPassword System.getenv("SIGNING_KEY_PASSWORD") ?: "OpenClaw123"
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled false
@@ -23,16 +33,6 @@ android {
         }
         debug {
             signingConfig signingConfigs.debug
-        }
-    }
-
-    signingConfigs {
-        release {
-            // 从 environment variables 读取（由 GitHub Actions 注入）
-            storeFile file(System.getenv("SIGNING_KEYSTORE_PATH") ?: "snake-release-key.keystore")
-            storePassword System.getenv("SIGNING_KEYSTORE_PASSWORD") ?: "OpenClaw123"
-            keyAlias System.getenv("SIGNING_KEY_ALIAS") ?: "snake-key"
-            keyPassword System.getenv("SIGNING_KEY_PASSWORD") ?: "OpenClaw123"
         }
     }
 
