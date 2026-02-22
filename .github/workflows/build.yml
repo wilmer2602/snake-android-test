@@ -34,12 +34,5 @@ jobs:
         name: snake-apk
         path: app/build/outputs/apk/release/app-release.apk
 
-    - name: Create Release
-      if: github.event_name == 'push' && github.ref_name == 'main'
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-        TAG="v1.0.0"
-        gh release create $TAG app/build/outputs/apk/release/app-release.apk \
-          --title "Snake App $TAG" \
-          --notes "Initial release of simple Snake game for Android"
+    # Create Release step removed - requires admin permissions.
+    # APK will be available in the artifacts after successful build.
