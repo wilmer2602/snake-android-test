@@ -29,7 +29,8 @@ class SnakeView(context: Context) : View(context) {
     private var direction = Pair(1, 0) // (dx, dy): 1=right, -1=left, 1=down, -1=up
     private var food = generateFood()
     private var score = 0
-    private var gameRunning = true
+    var gameRunning = true
+        private set
 
     // 触摸起始坐标
     private var startX = 0f
