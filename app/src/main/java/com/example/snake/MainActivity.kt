@@ -144,7 +144,9 @@ class MainActivity : Activity() {
             layoutParams = LinearLayout.LayoutParams(
                 120,
                 120
-            ).apply { margin = 8 }
+            ).apply { 
+                setMargins(8, 8, 8, 8)
+            }
             setOnClickListener { onClick() }
         }
     }

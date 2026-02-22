@@ -17,11 +17,7 @@ android {
 
     signingConfigs {
         release {
-            // 从 environment variables 读取（由 GitHub Actions 注入）
-            storeFile file(System.getenv("SIGNING_KEYSTORE_PATH") ?: "snake-release-key.keystore")
-            storePassword System.getenv("SIGNING_KEYSTORE_PASSWORD") ?: "OpenClaw123"
-            keyAlias System.getenv("SIGNING_KEY_ALIAS") ?: "snake-key"
-            keyPassword System.getenv("SIGNING_KEY_PASSWORD") ?: "OpenClaw123"
+            // 使用 debug 签名，避免需要 keystore 文件
         }
     }
 
@@ -29,10 +25,9 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.release
+            // 不使用自定义签名，使用默认 debug 签名
         }
         debug {
-            signingConfig signingConfigs.debug
         }
     }
 

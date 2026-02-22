@@ -14,7 +14,7 @@ class SnakeView(context: Context) : View(context) {
         style = Paint.Style.FILL
     }
     private val foodPaint = Paint().apply {
-        color = Color.parseColor="#FF4500") // 橙红色
+        color = Color.parseColor("#FF4500") // 橙红色
         strokeWidth = 20f
         isAntiAlias = true
         style = Paint.Style.FILL
