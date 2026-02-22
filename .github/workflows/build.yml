@@ -25,8 +25,8 @@ jobs:
     - name: Setup Android SDK
       uses: android-actions/setup-android@v3
 
-    - name: Build Release APK
-      run: ./gradlew :app:assembleRelease
+    - name: Build Debug APK
+      run: ./gradlew :app:assembleDebug
 
     - name: List APK files
       run: find app/build/outputs -name "*.apk" -type f
@@ -35,7 +35,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: snake-apk
-        path: app/build/outputs/apk/release/*.apk
+        path: app/build/outputs/apk/debug/*.apk
 
     # Create Release step removed - requires admin permissions.
     # APK will be available in the artifacts after successful build.
