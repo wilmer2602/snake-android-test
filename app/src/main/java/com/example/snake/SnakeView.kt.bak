@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
+import android.view.MotionEvent
 import android.view.View
 
 class SnakeView(context: Context) : View(context) {
@@ -11,18 +12,10 @@ class SnakeView(context: Context) : View(context) {
         color = Color.GREEN
         strokeWidth = 20f
         isAntiAlias = true
-        style = Paint.Style.FILL
     }
     private val foodPaint = Paint().apply {
         color = Color.RED
         strokeWidth = 20f
-        isAntiAlias = true
-        style = Paint.Style.FILL
-    }
-    private val borderPaint = Paint().apply {
-        color = Color.WHITE
-        strokeWidth = 4f
-        style = Paint.Style.STROKE
         isAntiAlias = true
     }
 
@@ -33,12 +26,18 @@ class SnakeView(context: Context) : View(context) {
     private var snake = mutableListOf<Pair<Int, Int>>().apply {
         add(Pair(10, 10))
     }
-    private var direction = Pair(1, 0)
+    private var direction = Pair(1, 0) // (dx, dy): 1=right, -1=left, 1=down, -1=up
     private var food = generateFood()
     private var score = 0
-    private var gameRunning = true
+    var gameRunning = true
+        private set
+
+    // 触摸起始坐标
+    private var startX = 0f
+    private var startY = 0f
 
     init {
+        // 游戏循环
         val thread = object : Thread() {
             override fun run() {
                 while (true) {
@@ -68,12 +67,14 @@ class SnakeView(context: Context) : View(context) {
         val head = snake.first()
         val newHead = Pair(head.first + direction.first, head.second + direction.second)
 
+        // 撞墙
         if (newHead.first < 0 || newHead.first >= cols ||
             newHead.second < 0 || newHead.second >= rows) {
             gameOver()
             return
         }
 
+        // 撞自己
         if (snake.contains(newHead)) {
             gameOver()
             return
@@ -81,6 +82,7 @@ class SnakeView(context: Context) : View(context) {
 
         snake.add(0, newHead)
 
+        // 吃食物
         if (newHead == food) {
             score++
             food = generateFood()
@@ -91,6 +93,7 @@ class SnakeView(context: Context) : View(context) {
 
     private fun gameOver() {
         gameRunning = false
+        // 可以触发回调到 Activity
     }
 
     fun reset() {
@@ -104,47 +107,70 @@ class SnakeView(context: Context) : View(context) {
 
     fun getScore(): Int = score
 
-    fun isGameRunning(): Boolean = gameRunning
-
     fun setDirection(dx: Int, dy: Int) {
-        // 防止直接反向
-        if (dx != 0 && direction.first != 0) return
-        if (dy != 0 && direction.second != 0) return
-        direction = Pair(dx, dy)
+        val newDir = Pair(dx, dy)
+        // 防止反向移动
+        if (newDir != Pair(-direction.first, -direction.second)) {
+            direction = newDir
+        }
+    }
+
+    override fun onTouchEvent(event: MotionEvent): Boolean {
+        when (event.action) {
+            MotionEvent.ACTION_DOWN -> {
+                startX = event.x
+                startY = event.y
+                return true
+            }
+            MotionEvent.ACTION_UP -> {
+                val endX = event.x
+                val endY = event.y
+                val diffX = endX - startX
+                val diffY = endY - startY
+
+                // 判断滑动方向（最小滑动距离 50px）
+                if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
+                    // 水平滑动
+                    if (diffX > 0 && direction != Pair(-1, 0)) {
+                        direction = Pair(1, 0) // 右
+                    } else if (diffX < 0 && direction != Pair(1, 0)) {
+                        direction = Pair(-1, 0) // 左
+                    }
+                } else if (Math.abs(diffY) > 50) {
+                    // 垂直滑动
+                    if (diffY > 0 && direction != Pair(0, -1)) {
+                        direction = Pair(0, 1) // 下
+                    } else if (diffY < 0 && direction != Pair(0, 1)) {
+                        direction = Pair(0, -1) // 上
+                    }
+                }
+                return true
+            }
+        }
+        return super.onTouchEvent(event)
     }
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
         val cellSize = width.coerceAtMost(height) / gridSize
-        val offsetX = (width - cols * cellSize) / 2
-        val offsetY = (height - rows * cellSize) / 2
-
-        // 绘制边框
-        canvas.drawRect(
-            offsetX.toFloat(),
-            offsetY.toFloat(),
-            (offsetX + cols * cellSize).toFloat(),
-            (offsetY + rows * cellSize).toFloat(),
-            borderPaint
-        )
 
         // 绘制蛇
         for ((x, y) in snake) {
             canvas.drawRect(
-                (offsetX + x * cellSize).toFloat(),
-                (offsetY + y * cellSize).toFloat(),
-                (offsetX + (x + 1) * cellSize).toFloat(),
-                (offsetY + (y + 1) * cellSize).toFloat(),
+                (x * cellSize).toFloat(),
+                (y * cellSize).toFloat(),
+                ((x + 1) * cellSize).toFloat(),
+                ((y + 1) * cellSize).toFloat(),
                 paint
             )
         }
 
         // 绘制食物
         canvas.drawRect(
-            (offsetX + food.first * cellSize).toFloat(),
-            (offsetY + food.second * cellSize).toFloat(),
-            (offsetX + (food.first + 1) * cellSize).toFloat(),
-            (offsetY + (food.second + 1) * cellSize).toFloat(),
+            (food.first * cellSize).toFloat(),
+            (food.second * cellSize).toFloat(),
+            ((food.first + 1) * cellSize).toFloat(),
+            ((food.second + 1) * cellSize).toFloat(),
             foodPaint
         )
     }
