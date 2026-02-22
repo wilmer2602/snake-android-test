@@ -14,6 +14,8 @@ class MainActivity : Activity() {
     private lateinit var scoreText: TextView
     private lateinit var highScoreText: TextView
     private lateinit var speedText: TextView
+    private lateinit var timeText: TextView
+    private lateinit var modeText: TextView
     private var highScore = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -27,13 +29,17 @@ class MainActivity : Activity() {
 
         // 顶部信息栏
         val infoLayout = LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
+            orientation = LinearLayout.VERTICAL
             setBackgroundColor(Color.parseColor("#2d2d2d"))
             setPadding(16, 16, 16, 16)
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
             )
+        }
+
+        val row1 = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
         }
 
         scoreText = TextView(this).apply {
@@ -59,9 +65,35 @@ class MainActivity : Activity() {
             layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
         }
 
-        infoLayout.addView(scoreText)
-        infoLayout.addView(highScoreText)
-        infoLayout.addView(speedText)
+        row1.addView(scoreText)
+        row1.addView(highScoreText)
+        row1.addView(speedText)
+
+        val row2 = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            setPadding(0, 8, 0, 0)
+        }
+
+        timeText = TextView(this).apply {
+            text = "时间: 0s"
+            textSize = 18f
+            setTextColor(Color.parseColor("#ff69b4"))
+            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+        }
+
+        modeText = TextView(this).apply {
+            text = "模式: 普通"
+            textSize = 18f
+            setTextColor(Color.parseColor("#9370db"))
+            gravity = Gravity.END
+            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+        }
+
+        row2.addView(timeText)
+        row2.addView(modeText)
+
+        infoLayout.addView(row1)
+        infoLayout.addView(row2)
 
         // 游戏区域容器
         val gameContainer = FrameLayout(this).apply {
@@ -137,9 +169,15 @@ class MainActivity : Activity() {
             updateSpeed()
         }
 
+        val modeBtn = createFunctionButton("🔄 模式", Color.parseColor("#f38181")) {
+            gameView.toggleEndlessMode()
+            updateMode()
+        }
+
         buttonRow.addView(restartBtn)
         buttonRow.addView(pauseBtn)
         buttonRow.addView(speedBtn)
+        buttonRow.addView(modeBtn)
 
         controlLayout.addView(arrowContainer)
         controlLayout.addView(buttonRow)
@@ -208,6 +246,10 @@ class MainActivity : Activity() {
         speedText.text = "速度: ${gameView.getSpeedLevel()}x"
     }
 
+    private fun updateMode() {
+        modeText.text = if (gameView.isEndlessMode()) "模式: 无尽" else "模式: 普通"
+    }
+
     private fun startScoreUpdater() {
         val thread = object : Thread() {
             override fun run() {
@@ -216,6 +258,8 @@ class MainActivity : Activity() {
                     runOnUiThread {
                         updateScore()
                         updateSpeed()
+                        updateMode()
+                        timeText.text = "时间: ${gameView.getElapsedTime()}s"
                         if (!gameView.isGameRunning()) {
                             scoreText.setTextColor(Color.parseColor("#ff6b6b"))
                         } else {
