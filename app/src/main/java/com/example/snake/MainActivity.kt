@@ -41,6 +41,22 @@ class MainActivity : Activity() {
             ).apply { bottomMargin = 50 }
         }
 
+        // 定期更新分数显示
+        val updater = object : Thread() {
+            override fun run() {
+                while (true) {
+                    Thread.sleep(100)
+                    runOnUiThread {
+                        scoreText.text = "Score: ${gameView.getScore()}"
+                        if (!gameView.gameRunning) {
+                            scoreText.text = "Game Over! Score: ${gameView.getScore()}"
+                        }
+                    }
+                }
+            }
+        }
+        updater.start()
+
         layout.addView(gameView)
         layout.addView(scoreText)
         layout.addView(restartBtn)
