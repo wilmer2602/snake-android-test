@@ -13,3 +13,6 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+# Generated design assets
+A_simple_and_clean_Android_app_*.png
