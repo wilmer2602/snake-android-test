@@ -21,37 +21,32 @@ class MainActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // 主布局：垂直
         val mainLayout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setBackgroundColor(Color.parseColor("#1a1a1a")) // 深色背景
+            setBackgroundColor(Color.parseColor("#1a1a1a"))
         }
 
         // 顶部信息栏
         val infoLayout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setBackgroundColor(Color.parseColor("#2d2d2d"))
-            setPadding(16, 16, 16, 16)
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            )
+            setPadding(16, 12, 16, 12)
         }
 
-        val row1 = LinearLayout(this).apply {
+        val infoRow1 = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
         }
 
         scoreText = TextView(this).apply {
             text = "分数: 0"
-            textSize = 20f
+            textSize = 18f
             setTextColor(Color.parseColor("#00ff00"))
             layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
         }
 
         highScoreText = TextView(this).apply {
             text = "最高: 0"
-            textSize = 20f
+            textSize = 18f
             setTextColor(Color.parseColor("#ffd700"))
             gravity = Gravity.CENTER
             layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
@@ -59,43 +54,43 @@ class MainActivity : Activity() {
 
         speedText = TextView(this).apply {
             text = "速度: 1x"
-            textSize = 20f
+            textSize = 18f
             setTextColor(Color.parseColor("#00bfff"))
             gravity = Gravity.END
             layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
         }
 
-        row1.addView(scoreText)
-        row1.addView(highScoreText)
-        row1.addView(speedText)
+        infoRow1.addView(scoreText)
+        infoRow1.addView(highScoreText)
+        infoRow1.addView(speedText)
 
-        val row2 = LinearLayout(this).apply {
+        val infoRow2 = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
-            setPadding(0, 8, 0, 0)
+            setPadding(0, 6, 0, 0)
         }
 
         timeText = TextView(this).apply {
             text = "时间: 0s"
-            textSize = 18f
+            textSize = 16f
             setTextColor(Color.parseColor("#ff69b4"))
             layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
         }
 
         modeText = TextView(this).apply {
             text = "模式: 普通"
-            textSize = 18f
+            textSize = 16f
             setTextColor(Color.parseColor("#9370db"))
             gravity = Gravity.END
             layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
         }
 
-        row2.addView(timeText)
-        row2.addView(modeText)
+        infoRow2.addView(timeText)
+        infoRow2.addView(modeText)
 
-        infoLayout.addView(row1)
-        infoLayout.addView(row2)
+        infoLayout.addView(infoRow1)
+        infoLayout.addView(infoRow2)
 
-        // 游戏区域容器
+        // 游戏区域
         val gameContainer = FrameLayout(this).apply {
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
@@ -111,24 +106,58 @@ class MainActivity : Activity() {
         val controlLayout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setBackgroundColor(Color.parseColor("#2d2d2d"))
-            setPadding(16, 16, 16, 16)
+            setPadding(16, 20, 16, 20)
         }
 
-        // 方向键区域
+        // 功能按钮行（顶部）
+        val functionRow = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply { bottomMargin = 20 }
+        }
+
+        val restartBtn = createSmallButton("🔄", Color.parseColor("#ff6b6b")) {
+            gameView.reset()
+            updateScore()
+        }
+
+        val pauseBtn = createSmallButton("⏸", Color.parseColor("#4ecdc4")) {
+            gameView.togglePause()
+        }
+
+        val speedBtn = createSmallButton("⚡", Color.parseColor("#95e1d3")) {
+            gameView.increaseSpeed()
+            updateSpeed()
+        }
+
+        val modeBtn = createSmallButton("♾", Color.parseColor("#f38181")) {
+            gameView.toggleEndlessMode()
+            updateMode()
+        }
+
+        functionRow.addView(restartBtn)
+        functionRow.addView(pauseBtn)
+        functionRow.addView(speedBtn)
+        functionRow.addView(modeBtn)
+
+        // 方向键区域（大按钮）
         val arrowContainer = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             gravity = Gravity.CENTER
         }
 
-        val row1 = LinearLayout(this).apply {
+        val arrowRow1 = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER
         }
-        val row2 = LinearLayout(this).apply {
+        val arrowRow2 = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER
         }
-        val row3 = LinearLayout(this).apply {
+        val arrowRow3 = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER
         }
@@ -138,51 +167,19 @@ class MainActivity : Activity() {
         val btnRight = createArrowButton("→") { gameView.setDirection(1, 0) }
         val btnDown = createArrowButton("↓") { gameView.setDirection(0, 1) }
 
-        row1.addView(btnUp)
-        row2.addView(btnLeft)
-        row2.addView(createSpacerButton())
-        row2.addView(btnRight)
-        row3.addView(btnDown)
+        arrowRow1.addView(btnUp)
+        arrowRow2.addView(btnLeft)
+        arrowRow2.addView(createSpacerButton())
+        arrowRow2.addView(btnRight)
+        arrowRow3.addView(btnDown)
 
-        arrowContainer.addView(row1)
-        arrowContainer.addView(row2)
-        arrowContainer.addView(row3)
+        arrowContainer.addView(arrowRow1)
+        arrowContainer.addView(arrowRow2)
+        arrowContainer.addView(arrowRow3)
 
-        // 功能按钮区域
-        val buttonRow = LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.CENTER
-            setPadding(0, 16, 0, 0)
-        }
-
-        val restartBtn = createFunctionButton("🔄 重置", Color.parseColor("#ff6b6b")) {
-            gameView.reset()
-            updateScore()
-        }
-
-        val pauseBtn = createFunctionButton("⏸ 暂停", Color.parseColor("#4ecdc4")) {
-            gameView.togglePause()
-        }
-
-        val speedBtn = createFunctionButton("⚡ 加速", Color.parseColor("#95e1d3")) {
-            gameView.increaseSpeed()
-            updateSpeed()
-        }
-
-        val modeBtn = createFunctionButton("🔄 模式", Color.parseColor("#f38181")) {
-            gameView.toggleEndlessMode()
-            updateMode()
-        }
-
-        buttonRow.addView(restartBtn)
-        buttonRow.addView(pauseBtn)
-        buttonRow.addView(speedBtn)
-        buttonRow.addView(modeBtn)
-
+        controlLayout.addView(functionRow)
         controlLayout.addView(arrowContainer)
-        controlLayout.addView(buttonRow)
 
-        // 组装
         gameContainer.addView(gameView)
         mainLayout.addView(infoLayout)
         mainLayout.addView(gameContainer)
@@ -196,11 +193,11 @@ class MainActivity : Activity() {
     private fun createArrowButton(text: String, onClick: () -> Unit): Button {
         return Button(this).apply {
             this.text = text
-            textSize = 28f
+            textSize = 36f
             setTextColor(Color.WHITE)
             setBackgroundColor(Color.parseColor("#3d3d3d"))
-            layoutParams = LinearLayout.LayoutParams(100, 100).apply {
-                setMargins(4, 4, 4, 4)
+            layoutParams = LinearLayout.LayoutParams(140, 140).apply {
+                setMargins(6, 6, 6, 6)
             }
             setOnClickListener { onClick() }
         }
@@ -211,23 +208,20 @@ class MainActivity : Activity() {
             text = ""
             isEnabled = false
             setBackgroundColor(Color.TRANSPARENT)
-            layoutParams = LinearLayout.LayoutParams(100, 100).apply {
-                setMargins(4, 4, 4, 4)
+            layoutParams = LinearLayout.LayoutParams(140, 140).apply {
+                setMargins(6, 6, 6, 6)
             }
         }
     }
 
-    private fun createFunctionButton(text: String, color: Int, onClick: () -> Unit): Button {
+    private fun createSmallButton(text: String, color: Int, onClick: () -> Unit): Button {
         return Button(this).apply {
             this.text = text
-            textSize = 16f
+            textSize = 20f
             setTextColor(Color.WHITE)
             setBackgroundColor(color)
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            ).apply {
-                setMargins(8, 0, 8, 0)
+            layoutParams = LinearLayout.LayoutParams(80, 80).apply {
+                setMargins(6, 0, 6, 0)
             }
             setOnClickListener { onClick() }
         }
