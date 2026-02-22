@@ -25,8 +25,20 @@ jobs:
     - name: Setup Android SDK
       uses: android-actions/setup-android@v3
 
-    - name: Build Debug APK
-      run: ./gradlew :app:assembleDebug
+    - name: Decode Keystore
+      run: |
+        echo "${{ secrets.SIGNING_KEYSTORE }}" | base64 -d > app/snake-release-key.keystore
+        echo "Keystore created: $(ls -l app/snake-release-key.keystore)"
+      env:
+        SIGNING_KEYSTORE: ${{ secrets.SIGNING_KEYSTORE }}
+
+    - name: Build Release APK
+      run: ./gradlew :app:assembleRelease
+      env:
+        SIGNING_KEYSTORE_PATH: app/snake-release-key.keystore
+        SIGNING_KEYSTORE_PASSWORD: ${{ secrets.SIGNING_KEYSTORE_PASSWORD }}
+        SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
+        SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
 
     - name: List APK files
       run: find app/build/outputs -name "*.apk" -type f
@@ -35,7 +47,4 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: snake-apk
-        path: app/build/outputs/apk/debug/*.apk
-
-    # Create Release step removed - requires admin permissions.
-    # APK will be available in the artifacts after successful build.
+        path: app/build/outputs/apk/release/*.apk
