@@ -41,6 +41,45 @@ class MainActivity : Activity() {
             ).apply { bottomMargin = 50 }
         }
 
+        // 方向控制按钮
+        val upBtn = Button(this).apply {
+            text = "↑"
+            textSize = 24f
+            setOnClickListener { gameView.setDirection(0, -1) }
+            layoutParams = FrameLayout.LayoutParams(150, 150, Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL)
+                .apply { bottomMargin = 350 }
+        }
+
+        val downBtn = Button(this).apply {
+            text = "↓"
+            textSize = 24f
+            setOnClickListener { gameView.setDirection(0, 1) }
+            layoutParams = FrameLayout.LayoutParams(150, 150, Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL)
+                .apply { bottomMargin = 50 }
+        }
+
+        val leftBtn = Button(this).apply {
+            text = "←"
+            textSize = 24f
+            setOnClickListener { gameView.setDirection(-1, 0) }
+            layoutParams = FrameLayout.LayoutParams(150, 150, Gravity.BOTTOM or Gravity.START)
+                .apply { 
+                    bottomMargin = 200
+                    marginStart = 50
+                }
+        }
+
+        val rightBtn = Button(this).apply {
+            text = "→"
+            textSize = 24f
+            setOnClickListener { gameView.setDirection(1, 0) }
+            layoutParams = FrameLayout.LayoutParams(150, 150, Gravity.BOTTOM or Gravity.END)
+                .apply { 
+                    bottomMargin = 200
+                    marginEnd = 50
+                }
+        }
+
         // 定期更新分数显示
         val updater = object : Thread() {
             override fun run() {
@@ -59,6 +98,10 @@ class MainActivity : Activity() {
 
         layout.addView(gameView)
         layout.addView(scoreText)
+        layout.addView(upBtn)
+        layout.addView(downBtn)
+        layout.addView(leftBtn)
+        layout.addView(rightBtn)
         layout.addView(restartBtn)
 
         setContentView(layout)

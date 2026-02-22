@@ -107,6 +107,14 @@ class SnakeView(context: Context) : View(context) {
 
     fun getScore(): Int = score
 
+    fun setDirection(dx: Int, dy: Int) {
+        val newDir = Pair(dx, dy)
+        // 防止反向移动
+        if (newDir != Pair(-direction.first, -direction.second)) {
+            direction = newDir
+        }
+    }
+
     override fun onTouchEvent(event: MotionEvent): Boolean {
         when (event.action) {
             MotionEvent.ACTION_DOWN -> {
