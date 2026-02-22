@@ -81,28 +81,44 @@ class SnakeView(context: Context) : View(context) {
         // 自动游走：智能寻找食物
         if (isAutoWalk) {
             val head = snake.first()
-            val dx = food.first - head.first
-            val dy = food.second - head.second
+            var dx = food.first - head.first
+            var dy = food.second - head.second
             
-            // 优先朝食物方向移动
+            // 无尽模式：考虑穿墙的最短路径
+            if (isEndlessMode) {
+                if (Math.abs(dx) > cols / 2) {
+                    dx = if (dx > 0) dx - cols else dx + cols
+                }
+                if (Math.abs(dy) > rows / 2) {
+                    dy = if (dy > 0) dy - rows else dy + rows
+                }
+            }
+            
+            // 检查下一步是否会撞到自己
+            val testRight = Pair(head.first + 1, head.second)
+            val testLeft = Pair(head.first - 1, head.second)
+            val testDown = Pair(head.first, head.second + 1)
+            val testUp = Pair(head.first, head.second - 1)
+            
+            // 优先朝食物方向移动，但避免撞自己
             if (Math.abs(dx) > Math.abs(dy)) {
-                if (dx > 0 && direction != Pair(-1, 0)) {
+                if (dx > 0 && direction != Pair(-1, 0) && !snake.contains(testRight)) {
                     direction = Pair(1, 0)
-                } else if (dx < 0 && direction != Pair(1, 0)) {
+                } else if (dx < 0 && direction != Pair(1, 0) && !snake.contains(testLeft)) {
                     direction = Pair(-1, 0)
-                } else if (dy > 0 && direction != Pair(0, -1)) {
+                } else if (dy > 0 && direction != Pair(0, -1) && !snake.contains(testDown)) {
                     direction = Pair(0, 1)
-                } else if (dy < 0 && direction != Pair(0, 1)) {
+                } else if (dy < 0 && direction != Pair(0, 1) && !snake.contains(testUp)) {
                     direction = Pair(0, -1)
                 }
             } else {
-                if (dy > 0 && direction != Pair(0, -1)) {
+                if (dy > 0 && direction != Pair(0, -1) && !snake.contains(testDown)) {
                     direction = Pair(0, 1)
-                } else if (dy < 0 && direction != Pair(0, 1)) {
+                } else if (dy < 0 && direction != Pair(0, 1) && !snake.contains(testUp)) {
                     direction = Pair(0, -1)
-                } else if (dx > 0 && direction != Pair(-1, 0)) {
+                } else if (dx > 0 && direction != Pair(-1, 0) && !snake.contains(testRight)) {
                     direction = Pair(1, 0)
-                } else if (dx < 0 && direction != Pair(1, 0)) {
+                } else if (dx < 0 && direction != Pair(1, 0) && !snake.contains(testLeft)) {
                     direction = Pair(-1, 0)
                 }
             }
@@ -189,9 +205,10 @@ class SnakeView(context: Context) : View(context) {
     }
     
     fun setDirection(dx: Int, dy: Int) {
-        if (dx != 0 && direction.first != 0) return
-        if (dy != 0 && direction.second != 0) return
-        direction = Pair(dx, dy)
+        val newDir = Pair(dx, dy)
+        // 只防止180度反向，允许同方向（无操作）
+        if (newDir == Pair(-direction.first, -direction.second)) return
+        direction = newDir
     }
 
     override fun onDraw(canvas: Canvas) {
