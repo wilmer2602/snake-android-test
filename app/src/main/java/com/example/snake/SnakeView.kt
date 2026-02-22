@@ -8,20 +8,20 @@ import android.view.View
 
 class SnakeView(context: Context) : View(context) {
     private val paint = Paint().apply {
-        color = Color.GREEN
+        color = Color.parseColor("#32CD32") // 亮绿色
         strokeWidth = 20f
         isAntiAlias = true
         style = Paint.Style.FILL
     }
     private val foodPaint = Paint().apply {
-        color = Color.RED
+        color = Color.parseColor="#FF4500") // 橙红色
         strokeWidth = 20f
         isAntiAlias = true
         style = Paint.Style.FILL
     }
     private val borderPaint = Paint().apply {
         color = Color.WHITE
-        strokeWidth = 4f
+        strokeWidth = 5f
         style = Paint.Style.STROKE
         isAntiAlias = true
     }
@@ -103,11 +103,8 @@ class SnakeView(context: Context) : View(context) {
     }
 
     fun getScore(): Int = score
-
     fun isGameRunning(): Boolean = gameRunning
-
     fun setDirection(dx: Int, dy: Int) {
-        // 防止直接反向
         if (dx != 0 && direction.first != 0) return
         if (dy != 0 && direction.second != 0) return
         direction = Pair(dx, dy)
@@ -119,7 +116,7 @@ class SnakeView(context: Context) : View(context) {
         val offsetX = (width - cols * cellSize) / 2
         val offsetY = (height - rows * cellSize) / 2
 
-        // 绘制边框
+        // 边框
         canvas.drawRect(
             offsetX.toFloat(),
             offsetY.toFloat(),
@@ -128,23 +125,23 @@ class SnakeView(context: Context) : View(context) {
             borderPaint
         )
 
-        // 绘制蛇
+        // 蛇
         for ((x, y) in snake) {
             canvas.drawRect(
-                (offsetX + x * cellSize).toFloat(),
-                (offsetY + y * cellSize).toFloat(),
-                (offsetX + (x + 1) * cellSize).toFloat(),
-                (offsetY + (y + 1) * cellSize).toFloat(),
+                (offsetX + x * cellSize + 2).toFloat(),
+                (offsetY + y * cellSize + 2).toFloat(),
+                (offsetX + (x + 1) * cellSize - 2).toFloat(),
+                (offsetY + (y + 1) * cellSize - 2).toFloat(),
                 paint
             )
         }
 
-        // 绘制食物
+        // 食物
         canvas.drawRect(
-            (offsetX + food.first * cellSize).toFloat(),
-            (offsetY + food.second * cellSize).toFloat(),
-            (offsetX + (food.first + 1) * cellSize).toFloat(),
-            (offsetY + (food.second + 1) * cellSize).toFloat(),
+            (offsetX + food.first * cellSize + 2).toFloat(),
+            (offsetY + food.second * cellSize + 2).toFloat(),
+            (offsetX + (food.first + 1) * cellSize - 2).toFloat(),
+            (offsetY + (food.second + 1) * cellSize - 2).toFloat(),
             foodPaint
         )
     }
