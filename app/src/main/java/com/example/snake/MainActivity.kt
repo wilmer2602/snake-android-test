@@ -167,42 +167,42 @@ class MainActivity : Activity() {
         arrowContainer.addView(arrowRow3)
 
         // 左上角：重置
-        val restartBtn = createCornerButton("🔄", Color.parseColor("#ff6b6b")) {
+        val restartBtn = createCornerButton("🔄\n重置", Color.parseColor("#ff6b6b")) {
             gameView.reset()
             updateScore()
         }.apply {
             layoutParams = FrameLayout.LayoutParams(
-                70, 70, Gravity.TOP or Gravity.START
-            )
+                90, 90, Gravity.TOP or Gravity.START
+            ).apply { setMargins(8, 8, 0, 0) }
         }
 
         // 右上角：暂停
-        val pauseBtn = createCornerButton("⏸", Color.parseColor("#4ecdc4")) {
+        val pauseBtn = createCornerButton("⏸\n暂停", Color.parseColor("#4ecdc4")) {
             gameView.togglePause()
         }.apply {
             layoutParams = FrameLayout.LayoutParams(
-                70, 70, Gravity.TOP or Gravity.END
-            )
+                90, 90, Gravity.TOP or Gravity.END
+            ).apply { setMargins(0, 8, 8, 0) }
         }
 
         // 左下角：加速
-        val speedBtn = createCornerButton("⚡", Color.parseColor("#95e1d3")) {
+        val speedBtn = createCornerButton("⚡\n加速", Color.parseColor("#95e1d3")) {
             gameView.increaseSpeed()
             updateSpeed()
         }.apply {
             layoutParams = FrameLayout.LayoutParams(
-                70, 70, Gravity.BOTTOM or Gravity.START
-            )
+                90, 90, Gravity.BOTTOM or Gravity.START
+            ).apply { setMargins(8, 0, 0, 8) }
         }
 
         // 右下角：模式
-        val modeBtn = createCornerButton("♾", Color.parseColor("#f38181")) {
+        val modeBtn = createCornerButton("♾\n模式", Color.parseColor("#f38181")) {
             gameView.toggleEndlessMode()
             updateMode()
         }.apply {
             layoutParams = FrameLayout.LayoutParams(
-                70, 70, Gravity.BOTTOM or Gravity.END
-            )
+                90, 90, Gravity.BOTTOM or Gravity.END
+            ).apply { setMargins(0, 0, 8, 8) }
         }
 
         controlLayout.addView(arrowContainer)
@@ -226,12 +226,18 @@ class MainActivity : Activity() {
             this.text = text
             textSize = 48f
             setTextColor(Color.WHITE)
-            setBackgroundColor(Color.parseColor("#3d3d3d"))
+            setBackgroundColor(Color.parseColor("#4a4a4a"))
             setPadding(0, 0, 0, 0)
+            elevation = 8f
+            stateListAnimator = null
             layoutParams = LinearLayout.LayoutParams(120, 120).apply {
                 setMargins(4, 4, 4, 4)
             }
-            setOnClickListener { onClick() }
+            setOnClickListener { 
+                alpha = 0.7f
+                postDelayed({ alpha = 1f }, 100)
+                onClick() 
+            }
         }
     }
 
@@ -242,21 +248,33 @@ class MainActivity : Activity() {
             setTextColor(Color.WHITE)
             setBackgroundColor(Color.parseColor("#ff9800"))
             setPadding(0, 0, 0, 0)
+            elevation = 8f
+            stateListAnimator = null
             layoutParams = LinearLayout.LayoutParams(120, 120).apply {
                 setMargins(4, 4, 4, 4)
             }
-            setOnClickListener { onClick() }
+            setOnClickListener { 
+                alpha = 0.7f
+                postDelayed({ alpha = 1f }, 100)
+                onClick() 
+            }
         }
     }
 
     private fun createCornerButton(text: String, color: Int, onClick: () -> Unit): Button {
         return Button(this).apply {
             this.text = text
-            textSize = 32f
+            textSize = 18f
             setTextColor(Color.WHITE)
             setBackgroundColor(color)
-            setPadding(8, 8, 8, 8)
-            setOnClickListener { onClick() }
+            setPadding(4, 4, 4, 4)
+            elevation = 8f
+            stateListAnimator = null
+            setOnClickListener { 
+                alpha = 0.7f
+                postDelayed({ alpha = 1f }, 100)
+                onClick() 
+            }
         }
     }
 
