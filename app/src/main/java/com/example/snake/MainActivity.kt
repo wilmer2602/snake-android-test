@@ -224,9 +224,10 @@ class MainActivity : Activity() {
     private fun createArrowButton(text: String, onClick: () -> Unit): Button {
         return Button(this).apply {
             this.text = text
-            textSize = 36f
+            textSize = 48f
             setTextColor(Color.WHITE)
             setBackgroundColor(Color.parseColor("#3d3d3d"))
+            setPadding(0, 0, 0, 0)
             layoutParams = LinearLayout.LayoutParams(120, 120).apply {
                 setMargins(4, 4, 4, 4)
             }
@@ -237,9 +238,10 @@ class MainActivity : Activity() {
     private fun createCenterButton(text: String, onClick: () -> Unit): Button {
         return Button(this).apply {
             this.text = text
-            textSize = 28f
+            textSize = 32f
             setTextColor(Color.WHITE)
             setBackgroundColor(Color.parseColor("#ff9800"))
+            setPadding(0, 0, 0, 0)
             layoutParams = LinearLayout.LayoutParams(120, 120).apply {
                 setMargins(4, 4, 4, 4)
             }
@@ -250,9 +252,10 @@ class MainActivity : Activity() {
     private fun createCornerButton(text: String, color: Int, onClick: () -> Unit): Button {
         return Button(this).apply {
             this.text = text
-            textSize = 24f
+            textSize = 32f
             setTextColor(Color.WHITE)
             setBackgroundColor(color)
+            setPadding(8, 8, 8, 8)
             setOnClickListener { onClick() }
         }
     }
