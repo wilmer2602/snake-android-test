@@ -17,7 +17,10 @@ android {
 
     signingConfigs {
         release {
-            // 使用 debug 签名，避免需要 keystore 文件
+            storeFile file("snake-release.keystore")
+            storePassword "snake123456"
+            keyAlias "snake-key"
+            keyPassword "snake123456"
         }
     }
 
@@ -25,7 +28,7 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            // 不使用自定义签名，使用默认 debug 签名
+            signingConfig signingConfigs.release
         }
         debug {
         }
