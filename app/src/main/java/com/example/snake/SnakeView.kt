@@ -123,16 +123,16 @@ class SnakeView(context: Context) : View(context) {
                 // 判断滑动方向（最小滑动距离 50px）
                 if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
                     // 水平滑动
-                    if (diffX > 0 && direction.first != -1) {
+                    if (diffX > 0 && direction != Pair(-1, 0)) {
                         direction = Pair(1, 0) // 右
-                    } else if (diffX < 0 && direction.first != 1) {
+                    } else if (diffX < 0 && direction != Pair(1, 0)) {
                         direction = Pair(-1, 0) // 左
                     }
                 } else if (Math.abs(diffY) > 50) {
                     // 垂直滑动
-                    if (diffY > 0 && direction.second != -1) {
+                    if (diffY > 0 && direction != Pair(0, -1)) {
                         direction = Pair(0, 1) // 下
-                    } else if (diffY < 0 && direction.second != 1) {
+                    } else if (diffY < 0 && direction != Pair(0, 1)) {
                         direction = Pair(0, -1) // 上
                     }
                 }
