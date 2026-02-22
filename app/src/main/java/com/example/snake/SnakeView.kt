@@ -112,7 +112,11 @@ class SnakeView(context: Context) : View(context) {
         var newHead = Pair(head.first + direction.first, head.second + direction.second)
 
         if (isEndlessMode) {
-            newHead = Pair((newHead.first + cols) % cols, (newHead.second + rows) % rows)
+            // 正确处理负数穿墙
+            newHead = Pair(
+                ((newHead.first % cols) + cols) % cols,
+                ((newHead.second % rows) + rows) % rows
+            )
         } else {
             if (newHead.first < 0 || newHead.first >= cols || newHead.second < 0 || newHead.second >= rows) {
                 gameOver()
