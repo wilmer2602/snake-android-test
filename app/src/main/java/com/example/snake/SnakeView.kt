@@ -37,13 +37,16 @@ class SnakeView(context: Context) : View(context) {
     private var food = generateFood()
     private var score = 0
     private var gameRunning = true
+    private var isPaused = false
+    private var speedLevel = 1
+    private var baseSpeed = 300L
 
     init {
         val thread = object : Thread() {
             override fun run() {
                 while (true) {
-                    Thread.sleep(300)
-                    if (gameRunning) {
+                    Thread.sleep(baseSpeed / speedLevel)
+                    if (gameRunning && !isPaused) {
                         move()
                         postInvalidate()
                     }
@@ -100,10 +103,26 @@ class SnakeView(context: Context) : View(context) {
         food = generateFood()
         score = 0
         gameRunning = true
+        isPaused = false
+        speedLevel = 1
     }
 
     fun getScore(): Int = score
     fun isGameRunning(): Boolean = gameRunning
+    fun getSpeedLevel(): Int = speedLevel
+    
+    fun togglePause() {
+        if (gameRunning) {
+            isPaused = !isPaused
+        }
+    }
+    
+    fun increaseSpeed() {
+        if (speedLevel < 5) {
+            speedLevel++
+        }
+    }
+    
     fun setDirection(dx: Int, dy: Int) {
         if (dx != 0 && direction.first != 0) return
         if (dy != 0 && direction.second != 0) return
