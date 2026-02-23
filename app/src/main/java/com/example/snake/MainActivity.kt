@@ -270,15 +270,15 @@ class MainActivity : Activity() {
     private fun createSideButton(text: String, color: Int, onClick: () -> Unit): Button {
         return Button(this).apply {
             this.text = text
-            textSize = 40f
+            textSize = 44f
             gravity = Gravity.CENTER
             setTextColor(Color.WHITE)
             setBackgroundColor(color)
-            setPadding(0, 0, 0, 0)
+            setPadding(8, 8, 8, 8)
             elevation = 8f
             stateListAnimator = null
-            layoutParams = LinearLayout.LayoutParams(90, 90).apply {
-                setMargins(6, 12, 6, 12)
+            layoutParams = LinearLayout.LayoutParams(110, 110).apply {
+                setMargins(8, 16, 8, 16)
             }
             setOnClickListener { 
                 alpha = 0.7f
