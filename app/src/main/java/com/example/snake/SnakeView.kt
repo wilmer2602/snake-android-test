@@ -236,13 +236,28 @@ class SnakeView(context: Context) : View(context) {
 
         for (i in snake.indices) {
             val (x, y) = snake[i]
-            val paint = if (i == 0) headPaint else bodyPaint
+            
+            // 计算渐变色：从绿色(头)到蓝色(尾)
+            val ratio = if (snake.size > 1) i.toFloat() / (snake.size - 1) else 0f
+            
+            // 头部：亮绿色 #00FF00 (0, 255, 0)
+            // 尾部：深蓝色 #0000FF (0, 0, 255)
+            val red = 0
+            val green = (255 * (1 - ratio)).toInt()
+            val blue = (255 * ratio).toInt()
+            
+            val segmentPaint = Paint().apply {
+                color = Color.rgb(red, green, blue)
+                isAntiAlias = true
+                style = Paint.Style.FILL
+            }
+            
             canvas.drawRect(
                 (offsetX + x * cellSize + 2).toFloat(),
                 (offsetY + y * cellSize + 2).toFloat(),
                 (offsetX + (x + 1) * cellSize - 2).toFloat(),
                 (offsetY + (y + 1) * cellSize - 2).toFloat(),
-                paint
+                segmentPaint
             )
             
             if (i == 0) {
