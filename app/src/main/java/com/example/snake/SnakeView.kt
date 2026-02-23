@@ -44,7 +44,7 @@ class SnakeView(context: Context) : View(context) {
     private var score = 0
     private var gameRunning = true
     private var isPaused = false
-    private var speedLevel = 1
+    private var speedMultiplier = 1.0
     private var baseSpeed = 300L
     private var isEndlessMode = false
     private var startTime = 0L
@@ -55,7 +55,7 @@ class SnakeView(context: Context) : View(context) {
         val thread = object : Thread() {
             override fun run() {
                 while (true) {
-                    Thread.sleep(baseSpeed / speedLevel)
+                    Thread.sleep((baseSpeed / speedMultiplier).toLong())
                     if (gameRunning && !isPaused) {
                         move()
                         postInvalidate()
@@ -182,7 +182,7 @@ class SnakeView(context: Context) : View(context) {
         score = 0
         gameRunning = true
         isPaused = false
-        speedLevel = 1
+        speedMultiplier = 1.0
         startTime = 0L
         elapsedTime = 0L
         isAutoWalk = false
@@ -190,7 +190,7 @@ class SnakeView(context: Context) : View(context) {
 
     fun getScore(): Int = score
     fun isGameRunning(): Boolean = gameRunning
-    fun getSpeedLevel(): Int = speedLevel
+    fun getSpeedMultiplier(): Double = speedMultiplier
     fun getElapsedTime(): Long = elapsedTime / 1000
     fun isEndlessMode(): Boolean = isEndlessMode
     
@@ -204,7 +204,21 @@ class SnakeView(context: Context) : View(context) {
     }
     
     fun increaseSpeed() {
-        if (speedLevel < 5) speedLevel++
+        when {
+            speedMultiplier < 1.0 -> speedMultiplier = 1.0
+            speedMultiplier < 2.0 -> speedMultiplier = 2.0
+            speedMultiplier < 5.0 -> speedMultiplier = 5.0
+            speedMultiplier < 10.0 -> speedMultiplier = 10.0
+        }
+    }
+    
+    fun decreaseSpeed() {
+        when {
+            speedMultiplier > 1.0 -> speedMultiplier = 1.0
+            speedMultiplier > 0.5 -> speedMultiplier = 0.5
+            speedMultiplier > 0.2 -> speedMultiplier = 0.2
+            speedMultiplier > 0.1 -> speedMultiplier = 0.1
+        }
     }
     
     fun toggleAutoWalk() {

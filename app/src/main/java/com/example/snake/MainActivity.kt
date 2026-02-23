@@ -185,9 +185,9 @@ class MainActivity : Activity() {
             ).apply { setMargins(0, 8, 8, 0) }
         }
 
-        // 左下角：加速
-        val speedBtn = createCornerButton("⚡\n加速", Color.parseColor("#95e1d3")) {
-            gameView.increaseSpeed()
+        // 左下角：减速
+        val slowBtn = createCornerButton("🐌\n减速", Color.parseColor("#ffa726")) {
+            gameView.decreaseSpeed()
             updateSpeed()
         }.apply {
             layoutParams = FrameLayout.LayoutParams(
@@ -195,10 +195,10 @@ class MainActivity : Activity() {
             ).apply { setMargins(8, 0, 0, 8) }
         }
 
-        // 右下角：模式
-        val modeBtn = createCornerButton("♾\n模式", Color.parseColor("#f38181")) {
-            gameView.toggleEndlessMode()
-            updateMode()
+        // 右下角：加速
+        val speedBtn = createCornerButton("⚡\n加速", Color.parseColor("#95e1d3")) {
+            gameView.increaseSpeed()
+            updateSpeed()
         }.apply {
             layoutParams = FrameLayout.LayoutParams(
                 90, 90, Gravity.BOTTOM or Gravity.END
@@ -208,8 +208,20 @@ class MainActivity : Activity() {
         controlLayout.addView(arrowContainer)
         controlLayout.addView(restartBtn)
         controlLayout.addView(pauseBtn)
+        controlLayout.addView(slowBtn)
         controlLayout.addView(speedBtn)
-        controlLayout.addView(modeBtn)
+        }.apply {
+            layoutParams = FrameLayout.LayoutParams(
+                90, 90, Gravity.BOTTOM or Gravity.END
+            ).apply { setMargins(0, 0, 8, 8) }
+        }
+
+        controlLayout.addView(arrowContainer)
+        controlLayout.addView(arrowContainer)
+        controlLayout.addView(restartBtn)
+        controlLayout.addView(pauseBtn)
+        controlLayout.addView(slowBtn)
+        controlLayout.addView(speedBtn)
 
         gameContainer.addView(gameView)
         mainLayout.addView(infoLayout)
@@ -288,7 +300,11 @@ class MainActivity : Activity() {
     }
 
     private fun updateSpeed() {
-        speedText.text = "速度: ${gameView.getSpeedLevel()}x"
+        val speed = gameView.getSpeedMultiplier()
+        speedText.text = when {
+            speed >= 1.0 -> "速度: ${speed.toInt()}x"
+            else -> "速度: ${speed}x"
+        }
     }
 
     private fun updateMode() {
