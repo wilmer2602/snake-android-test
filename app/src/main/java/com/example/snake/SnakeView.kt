@@ -235,6 +235,7 @@ class SnakeView(context: Context) : View(context) {
             )
             
             if (i == 0) {
+                // 眼睛
                 val eyeSize = cellSize / 6f
                 val eyeOffsetX = cellSize / 4f
                 val eyeOffsetY = cellSize / 3f
@@ -248,6 +249,43 @@ class SnakeView(context: Context) : View(context) {
                     offsetY + y * cellSize + eyeOffsetY,
                     eyeSize, eyePaint
                 )
+                
+                // 方向三角形（舌头）
+                val centerX = offsetX + x * cellSize + cellSize / 2f
+                val centerY = offsetY + y * cellSize + cellSize / 2f
+                val triangleSize = cellSize / 3f
+                
+                val path = android.graphics.Path()
+                when (direction) {
+                    Pair(1, 0) -> { // 向右
+                        path.moveTo(centerX + triangleSize, centerY)
+                        path.lineTo(centerX, centerY - triangleSize / 2)
+                        path.lineTo(centerX, centerY + triangleSize / 2)
+                    }
+                    Pair(-1, 0) -> { // 向左
+                        path.moveTo(centerX - triangleSize, centerY)
+                        path.lineTo(centerX, centerY - triangleSize / 2)
+                        path.lineTo(centerX, centerY + triangleSize / 2)
+                    }
+                    Pair(0, 1) -> { // 向下
+                        path.moveTo(centerX, centerY + triangleSize)
+                        path.lineTo(centerX - triangleSize / 2, centerY)
+                        path.lineTo(centerX + triangleSize / 2, centerY)
+                    }
+                    Pair(0, -1) -> { // 向上
+                        path.moveTo(centerX, centerY - triangleSize)
+                        path.lineTo(centerX - triangleSize / 2, centerY)
+                        path.lineTo(centerX + triangleSize / 2, centerY)
+                    }
+                }
+                path.close()
+                
+                val tonguePaint = Paint().apply {
+                    color = Color.RED
+                    style = Paint.Style.FILL
+                    isAntiAlias = true
+                }
+                canvas.drawPath(path, tonguePaint)
             }
         }
 
