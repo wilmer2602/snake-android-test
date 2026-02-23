@@ -228,7 +228,7 @@ class MainActivity : Activity() {
     private fun createArrowButton(text: String, onClick: () -> Unit): Button {
         return Button(this).apply {
             this.text = text
-            textSize = 56f
+            textSize = 64f
             gravity = Gravity.CENTER
             includeFontPadding = false
             setTextColor(Color.WHITE)
@@ -236,8 +236,8 @@ class MainActivity : Activity() {
             setPadding(0, 0, 0, 0)
             elevation = 8f
             stateListAnimator = null
-            layoutParams = LinearLayout.LayoutParams(140, 140).apply {
-                setMargins(8, 8, 8, 8)
+            layoutParams = LinearLayout.LayoutParams(150, 150).apply {
+                setMargins(10, 10, 10, 10)
             }
             setOnClickListener { 
                 alpha = 0.7f
@@ -250,7 +250,7 @@ class MainActivity : Activity() {
     private fun createCenterButton(text: String, onClick: () -> Unit): Button {
         return Button(this).apply {
             this.text = text
-            textSize = 40f
+            textSize = 48f
             gravity = Gravity.CENTER
             includeFontPadding = false
             setTextColor(Color.WHITE)
@@ -258,8 +258,8 @@ class MainActivity : Activity() {
             setPadding(0, 0, 0, 0)
             elevation = 8f
             stateListAnimator = null
-            layoutParams = LinearLayout.LayoutParams(140, 140).apply {
-                setMargins(8, 8, 8, 8)
+            layoutParams = LinearLayout.LayoutParams(150, 150).apply {
+                setMargins(10, 10, 10, 10)
             }
             setOnClickListener { 
                 alpha = 0.7f
@@ -272,16 +272,16 @@ class MainActivity : Activity() {
     private fun createSideButton(text: String, color: Int, onClick: () -> Unit): Button {
         return Button(this).apply {
             this.text = text
-            textSize = 44f
+            textSize = 52f
             gravity = Gravity.CENTER
             includeFontPadding = false
             setTextColor(Color.WHITE)
             setBackgroundColor(color)
-            setPadding(8, 8, 8, 8)
+            setPadding(12, 12, 12, 12)
             elevation = 8f
             stateListAnimator = null
-            layoutParams = LinearLayout.LayoutParams(110, 110).apply {
-                setMargins(8, 16, 8, 16)
+            layoutParams = LinearLayout.LayoutParams(130, 130).apply {
+                setMargins(10, 18, 10, 18)
             }
             setOnClickListener { 
                 alpha = 0.7f
