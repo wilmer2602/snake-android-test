@@ -121,14 +121,34 @@ class SnakeView(context: Context) : View(context) {
         val head = snake.first()
         var newHead = Pair(head.first + direction.first, head.second + direction.second)
 
-        if (isEndlessMode) {
-            // 正确处理负数穿墙
-            newHead = Pair(
-                ((newHead.first % cols) + cols) % cols,
-                ((newHead.second % rows) + rows) % rows
-            )
-        } else {
-            if (newHead.first < 0 || newHead.first >= cols || newHead.second < 0 || newHead.second >= rows) {
+        // 检查是否撞墙
+        val hitWall = newHead.first < 0 || newHead.first >= cols || 
+                      newHead.second < 0 || newHead.second >= rows
+
+        if (hitWall) {
+            if (isEndlessMode) {
+                // 无尽模式：随机改变方向
+                val possibleDirections = mutableListOf<Pair<Int, Int>>()
+                
+                // 添加所有不会立即撞墙的方向
+                if (head.first > 0) possibleDirections.add(Pair(-1, 0)) // 左
+                if (head.first < cols - 1) possibleDirections.add(Pair(1, 0)) // 右
+                if (head.second > 0) possibleDirections.add(Pair(0, -1)) // 上
+                if (head.second < rows - 1) possibleDirections.add(Pair(0, 1)) // 下
+                
+                // 移除反向（180度掉头）
+                possibleDirections.remove(Pair(-direction.first, -direction.second))
+                
+                if (possibleDirections.isNotEmpty()) {
+                    direction = possibleDirections.random()
+                    newHead = Pair(head.first + direction.first, head.second + direction.second)
+                } else {
+                    // 如果没有可行方向，游戏结束
+                    gameOver()
+                    return
+                }
+            } else {
+                // 普通模式：撞墙死亡
                 gameOver()
                 return
             }
