@@ -120,14 +120,14 @@ class MainActivity : Activity() {
             ).apply { rightMargin = 32 }
         }
 
-        val restartBtn = createSideButton("🔄", Color.parseColor("#ff6b6b")) {
+        val restartBtn = createSideButton(R.drawable.btn_restart, Color.parseColor("#ff6b6b")) {
             gameView.reset()
             updateScore()
         }
-        val pauseBtn = createSideButton("⏸", Color.parseColor("#4ecdc4")) {
+        val pauseBtn = createSideButton(R.drawable.btn_pause, Color.parseColor("#4ecdc4")) {
             gameView.togglePause()
         }
-        val slowBtn = createSideButton("🐌", Color.parseColor("#ffa726")) {
+        val slowBtn = createSideButton(R.drawable.btn_slow, Color.parseColor("#ffa726")) {
             gameView.decreaseSpeed()
             updateSpeed()
         }
@@ -195,16 +195,16 @@ class MainActivity : Activity() {
             ).apply { leftMargin = 32 }
         }
 
-        val speedBtn = createSideButton("⚡", Color.parseColor("#95e1d3")) {
+        val speedBtn = createSideButton(R.drawable.btn_fast, Color.parseColor("#95e1d3")) {
             gameView.increaseSpeed()
             updateSpeed()
         }
-        val modeBtn = createSideButton("♾", Color.parseColor("#f38181")) {
+        val modeBtn = createSideButton(R.drawable.btn_endless, Color.parseColor("#f38181")) {
             gameView.toggleEndlessMode()
             updateMode()
         }
-        val autoBtn = createSideButton("🎯", Color.parseColor("#9c27b0")) {
-            // 预留功能
+        val autoBtn = createSideButton(R.drawable.btn_auto, Color.parseColor("#9c27b0")) {
+            gameView.toggleAutoWalk()
         }
 
         rightButtons.addView(speedBtn)
@@ -269,20 +269,21 @@ class MainActivity : Activity() {
         }
     }
 
-    private fun createSideButton(text: String, color: Int, onClick: () -> Unit): Button {
+    private fun createSideButton(drawableRes: Int, color: Int, onClick: () -> Unit): Button {
         return Button(this).apply {
-            this.text = text
-            textSize = 52f
-            gravity = Gravity.CENTER
-            includeFontPadding = false
-            setTextColor(Color.WHITE)
             setBackgroundColor(color)
-            setPadding(12, 12, 12, 12)
+            setPadding(16, 16, 16, 16)
             elevation = 8f
             stateListAnimator = null
             layoutParams = LinearLayout.LayoutParams(130, 130).apply {
                 setMargins(10, 18, 10, 18)
             }
+            
+            // 设置图标
+            val drawable = resources.getDrawable(drawableRes, null)
+            drawable.setBounds(0, 0, 96, 96)
+            setCompoundDrawables(null, drawable, null, null)
+            
             setOnClickListener { 
                 alpha = 0.7f
                 postDelayed({ alpha = 1f }, 100)
