@@ -130,14 +130,22 @@ class SnakeView(context: Context) : View(context) {
                 // 无尽模式：随机改变方向
                 val possibleDirections = mutableListOf<Pair<Int, Int>>()
                 
-                // 添加所有不会立即撞墙的方向
-                if (head.first > 0) possibleDirections.add(Pair(-1, 0)) // 左
-                if (head.first < cols - 1) possibleDirections.add(Pair(1, 0)) // 右
-                if (head.second > 0) possibleDirections.add(Pair(0, -1)) // 上
-                if (head.second < rows - 1) possibleDirections.add(Pair(0, 1)) // 下
+                // 添加所有合法方向（不会撞墙的）
+                val testLeft = Pair(head.first - 1, head.second)
+                val testRight = Pair(head.first + 1, head.second)
+                val testUp = Pair(head.first, head.second - 1)
+                val testDown = Pair(head.first, head.second + 1)
                 
-                // 移除反向（180度掉头）
-                possibleDirections.remove(Pair(-direction.first, -direction.second))
+                if (testLeft.first >= 0) possibleDirections.add(Pair(-1, 0)) // 左
+                if (testRight.first < cols) possibleDirections.add(Pair(1, 0)) // 右
+                if (testUp.second >= 0) possibleDirections.add(Pair(0, -1)) // 上
+                if (testDown.second < rows) possibleDirections.add(Pair(0, 1)) // 下
+                
+                // 移除反向（180度掉头），但只在有其他选择时
+                val reverseDir = Pair(-direction.first, -direction.second)
+                if (possibleDirections.size > 1) {
+                    possibleDirections.remove(reverseDir)
+                }
                 
                 if (possibleDirections.isNotEmpty()) {
                     direction = possibleDirections.random()
