@@ -129,7 +129,6 @@ class SnakeView(context: Context) : View(context) {
             if (isEndlessMode) {
                 // 无尽模式：优先选择远离墙的方向
                 val possibleDirections = mutableListOf<Pair<Int, Int>>()
-                val priorityDirections = mutableListOf<Pair<Int, Int>>()
                 
                 // 检查四个方向
                 if (head.first > 0) possibleDirections.add(Pair(-1, 0))
@@ -137,26 +136,26 @@ class SnakeView(context: Context) : View(context) {
                 if (head.second > 0) possibleDirections.add(Pair(0, -1))
                 if (head.second < rows - 1) possibleDirections.add(Pair(0, 1))
                 
+                if (possibleDirections.isEmpty()) {
+                    gameOver()
+                    return
+                }
+                
                 // 优先选择远离边缘的方向（距离中心更近）
                 val centerX = cols / 2
                 val centerY = rows / 2
-                for (dir in possibleDirections) {
+                val priorityDirections = possibleDirections.filter { dir ->
                     val nextPos = Pair(head.first + dir.first, head.second + dir.second)
                     val currentDist = Math.abs(head.first - centerX) + Math.abs(head.second - centerY)
                     val nextDist = Math.abs(nextPos.first - centerX) + Math.abs(nextPos.second - centerY)
-                    if (nextDist < currentDist) {
-                        priorityDirections.add(dir)
-                    }
+                    nextDist < currentDist
                 }
                 
                 // 优先选择朝向中心的方向，否则随机
                 direction = if (priorityDirections.isNotEmpty()) {
                     priorityDirections.random()
-                } else if (possibleDirections.isNotEmpty()) {
-                    possibleDirections.random()
                 } else {
-                    gameOver()
-                    return
+                    possibleDirections.random()
                 }
                 newHead = Pair(head.first + direction.first, head.second + direction.second)
             } else {
@@ -215,20 +214,32 @@ class SnakeView(context: Context) : View(context) {
     }
     
     fun increaseSpeed() {
-        when {
-            speedMultiplier < 1.0 -> speedMultiplier = 1.0
-            speedMultiplier < 2.0 -> speedMultiplier = 2.0
-            speedMultiplier < 5.0 -> speedMultiplier = 5.0
-            speedMultiplier < 10.0 -> speedMultiplier = 10.0
+        speedMultiplier = when {
+            speedMultiplier < 0.2 -> 0.2
+            speedMultiplier < 0.5 -> 0.5
+            speedMultiplier < 1.0 -> 1.0
+            speedMultiplier < 2.0 -> 2.0
+            speedMultiplier < 5.0 -> 5.0
+            speedMultiplier < 10.0 -> 10.0
+            speedMultiplier < 20.0 -> 20.0
+            speedMultiplier < 50.0 -> 50.0
+            speedMultiplier < 100.0 -> 100.0
+            else -> 100.0
         }
     }
     
     fun decreaseSpeed() {
-        when {
-            speedMultiplier > 1.0 -> speedMultiplier = 1.0
-            speedMultiplier > 0.5 -> speedMultiplier = 0.5
-            speedMultiplier > 0.2 -> speedMultiplier = 0.2
-            speedMultiplier > 0.1 -> speedMultiplier = 0.1
+        speedMultiplier = when {
+            speedMultiplier > 50.0 -> 50.0
+            speedMultiplier > 20.0 -> 20.0
+            speedMultiplier > 10.0 -> 10.0
+            speedMultiplier > 5.0 -> 5.0
+            speedMultiplier > 2.0 -> 2.0
+            speedMultiplier > 1.0 -> 1.0
+            speedMultiplier > 0.5 -> 0.5
+            speedMultiplier > 0.2 -> 0.2
+            speedMultiplier > 0.1 -> 0.1
+            else -> 0.1
         }
     }
     
