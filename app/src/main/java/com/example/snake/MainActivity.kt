@@ -230,6 +230,7 @@ class MainActivity : Activity() {
             this.text = text
             textSize = 56f
             gravity = Gravity.CENTER
+            includeFontPadding = false
             setTextColor(Color.WHITE)
             setBackgroundColor(Color.parseColor("#4a4a4a"))
             setPadding(0, 0, 0, 0)
@@ -251,6 +252,7 @@ class MainActivity : Activity() {
             this.text = text
             textSize = 40f
             gravity = Gravity.CENTER
+            includeFontPadding = false
             setTextColor(Color.WHITE)
             setBackgroundColor(Color.parseColor("#ff9800"))
             setPadding(0, 0, 0, 0)
@@ -272,6 +274,7 @@ class MainActivity : Activity() {
             this.text = text
             textSize = 44f
             gravity = Gravity.CENTER
+            includeFontPadding = false
             setTextColor(Color.WHITE)
             setBackgroundColor(color)
             setPadding(8, 8, 8, 8)

@@ -127,25 +127,39 @@ class SnakeView(context: Context) : View(context) {
 
         if (hitWall) {
             if (isEndlessMode) {
-                // 无尽模式：随机改变方向，选择所有不撞墙的方向
+                // 无尽模式：优先选择远离墙的方向
                 val possibleDirections = mutableListOf<Pair<Int, Int>>()
+                val priorityDirections = mutableListOf<Pair<Int, Int>>()
                 
                 // 检查四个方向
-                if (head.first > 0) possibleDirections.add(Pair(-1, 0)) // 左
-                if (head.first < cols - 1) possibleDirections.add(Pair(1, 0)) // 右
-                if (head.second > 0) possibleDirections.add(Pair(0, -1)) // 上
-                if (head.second < rows - 1) possibleDirections.add(Pair(0, 1)) // 下
+                if (head.first > 0) possibleDirections.add(Pair(-1, 0))
+                if (head.first < cols - 1) possibleDirections.add(Pair(1, 0))
+                if (head.second > 0) possibleDirections.add(Pair(0, -1))
+                if (head.second < rows - 1) possibleDirections.add(Pair(0, 1))
                 
-                if (possibleDirections.isNotEmpty()) {
-                    // 随机选择一个方向（允许180度转向以离开墙）
-                    direction = possibleDirections.random()
-                    newHead = Pair(head.first + direction.first, head.second + direction.second)
+                // 优先选择远离边缘的方向（距离中心更近）
+                val centerX = cols / 2
+                val centerY = rows / 2
+                for (dir in possibleDirections) {
+                    val nextPos = Pair(head.first + dir.first, head.second + dir.second)
+                    val currentDist = Math.abs(head.first - centerX) + Math.abs(head.second - centerY)
+                    val nextDist = Math.abs(nextPos.first - centerX) + Math.abs(nextPos.second - centerY)
+                    if (nextDist < currentDist) {
+                        priorityDirections.add(dir)
+                    }
+                }
+                
+                // 优先选择朝向中心的方向，否则随机
+                direction = if (priorityDirections.isNotEmpty()) {
+                    priorityDirections.random()
+                } else if (possibleDirections.isNotEmpty()) {
+                    possibleDirections.random()
                 } else {
                     gameOver()
                     return
                 }
+                newHead = Pair(head.first + direction.first, head.second + direction.second)
             } else {
-                // 普通模式：撞墙死亡
                 gameOver()
                 return
             }
