@@ -210,18 +210,6 @@ class MainActivity : Activity() {
         controlLayout.addView(pauseBtn)
         controlLayout.addView(slowBtn)
         controlLayout.addView(speedBtn)
-        }.apply {
-            layoutParams = FrameLayout.LayoutParams(
-                90, 90, Gravity.BOTTOM or Gravity.END
-            ).apply { setMargins(0, 0, 8, 8) }
-        }
-
-        controlLayout.addView(arrowContainer)
-        controlLayout.addView(arrowContainer)
-        controlLayout.addView(restartBtn)
-        controlLayout.addView(pauseBtn)
-        controlLayout.addView(slowBtn)
-        controlLayout.addView(speedBtn)
 
         gameContainer.addView(gameView)
         mainLayout.addView(infoLayout)
