@@ -155,19 +155,19 @@ class MainActivity : Activity() {
             gravity = Gravity.CENTER
         }
 
-        val btnUp = createArrowButton("↑") { 
+        val btnUp = createArrowButton(R.drawable.arrow_up) { 
             gameView.setDirection(0, -1)
             gameView.disableAutoWalk()
         }
-        val btnLeft = createArrowButton("←") { 
+        val btnLeft = createArrowButton(R.drawable.arrow_left) { 
             gameView.setDirection(-1, 0)
             gameView.disableAutoWalk()
         }
-        val btnRight = createArrowButton("→") { 
+        val btnRight = createArrowButton(R.drawable.arrow_right) { 
             gameView.setDirection(1, 0)
             gameView.disableAutoWalk()
         }
-        val btnDown = createArrowButton("↓") { 
+        val btnDown = createArrowButton(R.drawable.arrow_down) { 
             gameView.setDirection(0, 1)
             gameView.disableAutoWalk()
         }
@@ -225,20 +225,21 @@ class MainActivity : Activity() {
         startScoreUpdater()
     }
 
-    private fun createArrowButton(text: String, onClick: () -> Unit): Button {
+    private fun createArrowButton(drawableRes: Int, onClick: () -> Unit): Button {
         return Button(this).apply {
-            this.text = text
-            textSize = 64f
-            gravity = Gravity.CENTER
-            includeFontPadding = false
-            setTextColor(Color.WHITE)
             setBackgroundColor(Color.parseColor("#4a4a4a"))
-            setPadding(0, 0, 0, 0)
+            setPadding(16, 16, 16, 16)
             elevation = 8f
             stateListAnimator = null
             layoutParams = LinearLayout.LayoutParams(150, 150).apply {
                 setMargins(10, 10, 10, 10)
             }
+            
+            // 设置箭头图标
+            val drawable = resources.getDrawable(drawableRes, null)
+            drawable.setBounds(0, 0, 110, 110)
+            setCompoundDrawables(null, drawable, null, null)
+            
             setOnClickListener { 
                 alpha = 0.7f
                 postDelayed({ alpha = 1f }, 100)

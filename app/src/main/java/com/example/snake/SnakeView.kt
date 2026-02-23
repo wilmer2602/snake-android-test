@@ -127,45 +127,24 @@ class SnakeView(context: Context) : View(context) {
 
         if (hitWall) {
             if (isEndlessMode) {
-                // 无尽模式：强制远离墙壁
-                val escapeDirections = mutableListOf<Pair<Int, Int>>()
+                // 无尽模式：简单随机选择任意有效方向
+                val validDirections = mutableListOf<Pair<Int, Int>>()
                 
-                // 根据撞到的墙，选择逃离方向
-                if (newHead.first < 0 && head.second in 1 until rows - 1) {
-                    // 撞左墙：向右或上下
-                    escapeDirections.add(Pair(1, 0))
-                    escapeDirections.add(Pair(0, -1))
-                    escapeDirections.add(Pair(0, 1))
-                } else if (newHead.first >= cols && head.second in 1 until rows - 1) {
-                    // 撞右墙：向左或上下
-                    escapeDirections.add(Pair(-1, 0))
-                    escapeDirections.add(Pair(0, -1))
-                    escapeDirections.add(Pair(0, 1))
-                } else if (newHead.second < 0 && head.first in 1 until cols - 1) {
-                    // 撞上墙：向下或左右
-                    escapeDirections.add(Pair(0, 1))
-                    escapeDirections.add(Pair(-1, 0))
-                    escapeDirections.add(Pair(1, 0))
-                } else if (newHead.second >= rows && head.first in 1 until cols - 1) {
-                    // 撞下墙：向上或左右
-                    escapeDirections.add(Pair(0, -1))
-                    escapeDirections.add(Pair(-1, 0))
-                    escapeDirections.add(Pair(1, 0))
+                // 添加所有不会立即撞墙的方向
+                if (head.first > 0) validDirections.add(Pair(-1, 0))
+                if (head.first < cols - 1) validDirections.add(Pair(1, 0))
+                if (head.second > 0) validDirections.add(Pair(0, -1))
+                if (head.second < rows - 1) validDirections.add(Pair(0, 1))
+                
+                // 随机选择（简单有效）
+                direction = if (validDirections.isNotEmpty()) {
+                    validDirections.random()
                 } else {
-                    // 角落：添加所有不撞墙的方向
-                    if (head.first > 0) escapeDirections.add(Pair(-1, 0))
-                    if (head.first < cols - 1) escapeDirections.add(Pair(1, 0))
-                    if (head.second > 0) escapeDirections.add(Pair(0, -1))
-                    if (head.second < rows - 1) escapeDirections.add(Pair(0, 1))
+                    // 理论上不会到这里，但保险起见
+                    Pair(1, 0)
                 }
                 
-                if (escapeDirections.isNotEmpty()) {
-                    direction = escapeDirections.random()
-                    newHead = Pair(head.first + direction.first, head.second + direction.second)
-                } else {
-                    gameOver()
-                    return
-                }
+                newHead = Pair(head.first + direction.first, head.second + direction.second)
             } else {
                 gameOver()
                 return
