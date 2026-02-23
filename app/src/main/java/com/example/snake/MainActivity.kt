@@ -106,7 +106,7 @@ class MainActivity : Activity() {
         val controlLayout = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
             setBackgroundColor(Color.parseColor("#2d2d2d"))
-            setPadding(16, 20, 16, 20)
+            setPadding(24, 32, 24, 32)
             gravity = Gravity.CENTER
         }
 
@@ -117,7 +117,7 @@ class MainActivity : Activity() {
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
-            ).apply { rightMargin = 20 }
+            ).apply { rightMargin = 32 }
         }
 
         val restartBtn = createSideButton("🔄", Color.parseColor("#ff6b6b")) {
@@ -192,7 +192,7 @@ class MainActivity : Activity() {
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
-            ).apply { leftMargin = 20 }
+            ).apply { leftMargin = 32 }
         }
 
         val speedBtn = createSideButton("⚡", Color.parseColor("#95e1d3")) {
@@ -204,7 +204,7 @@ class MainActivity : Activity() {
             updateMode()
         }
         val autoBtn = createSideButton("🎯", Color.parseColor("#9c27b0")) {
-            // 预留：自动寻路增强
+            // 预留功能
         }
 
         rightButtons.addView(speedBtn)
@@ -235,8 +235,8 @@ class MainActivity : Activity() {
             setPadding(0, 0, 0, 0)
             elevation = 8f
             stateListAnimator = null
-            layoutParams = LinearLayout.LayoutParams(130, 130).apply {
-                setMargins(6, 6, 6, 6)
+            layoutParams = LinearLayout.LayoutParams(140, 140).apply {
+                setMargins(8, 8, 8, 8)
             }
             setOnClickListener { 
                 alpha = 0.7f
@@ -256,8 +256,8 @@ class MainActivity : Activity() {
             setPadding(0, 0, 0, 0)
             elevation = 8f
             stateListAnimator = null
-            layoutParams = LinearLayout.LayoutParams(130, 130).apply {
-                setMargins(6, 6, 6, 6)
+            layoutParams = LinearLayout.LayoutParams(140, 140).apply {
+                setMargins(8, 8, 8, 8)
             }
             setOnClickListener { 
                 alpha = 0.7f
@@ -270,15 +270,15 @@ class MainActivity : Activity() {
     private fun createSideButton(text: String, color: Int, onClick: () -> Unit): Button {
         return Button(this).apply {
             this.text = text
-            textSize = 36f
+            textSize = 40f
             gravity = Gravity.CENTER
             setTextColor(Color.WHITE)
             setBackgroundColor(color)
             setPadding(0, 0, 0, 0)
             elevation = 8f
             stateListAnimator = null
-            layoutParams = LinearLayout.LayoutParams(80, 80).apply {
-                setMargins(4, 8, 4, 8)
+            layoutParams = LinearLayout.LayoutParams(90, 90).apply {
+                setMargins(6, 12, 6, 12)
             }
             setOnClickListener { 
                 alpha = 0.7f
