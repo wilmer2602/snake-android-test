@@ -127,37 +127,45 @@ class SnakeView(context: Context) : View(context) {
 
         if (hitWall) {
             if (isEndlessMode) {
-                // 无尽模式：优先选择远离墙的方向
-                val possibleDirections = mutableListOf<Pair<Int, Int>>()
+                // 无尽模式：强制远离墙壁
+                val escapeDirections = mutableListOf<Pair<Int, Int>>()
                 
-                // 检查四个方向
-                if (head.first > 0) possibleDirections.add(Pair(-1, 0))
-                if (head.first < cols - 1) possibleDirections.add(Pair(1, 0))
-                if (head.second > 0) possibleDirections.add(Pair(0, -1))
-                if (head.second < rows - 1) possibleDirections.add(Pair(0, 1))
+                // 根据撞到的墙，选择逃离方向
+                if (newHead.first < 0 && head.second in 1 until rows - 1) {
+                    // 撞左墙：向右或上下
+                    escapeDirections.add(Pair(1, 0))
+                    escapeDirections.add(Pair(0, -1))
+                    escapeDirections.add(Pair(0, 1))
+                } else if (newHead.first >= cols && head.second in 1 until rows - 1) {
+                    // 撞右墙：向左或上下
+                    escapeDirections.add(Pair(-1, 0))
+                    escapeDirections.add(Pair(0, -1))
+                    escapeDirections.add(Pair(0, 1))
+                } else if (newHead.second < 0 && head.first in 1 until cols - 1) {
+                    // 撞上墙：向下或左右
+                    escapeDirections.add(Pair(0, 1))
+                    escapeDirections.add(Pair(-1, 0))
+                    escapeDirections.add(Pair(1, 0))
+                } else if (newHead.second >= rows && head.first in 1 until cols - 1) {
+                    // 撞下墙：向上或左右
+                    escapeDirections.add(Pair(0, -1))
+                    escapeDirections.add(Pair(-1, 0))
+                    escapeDirections.add(Pair(1, 0))
+                } else {
+                    // 角落：添加所有不撞墙的方向
+                    if (head.first > 0) escapeDirections.add(Pair(-1, 0))
+                    if (head.first < cols - 1) escapeDirections.add(Pair(1, 0))
+                    if (head.second > 0) escapeDirections.add(Pair(0, -1))
+                    if (head.second < rows - 1) escapeDirections.add(Pair(0, 1))
+                }
                 
-                if (possibleDirections.isEmpty()) {
+                if (escapeDirections.isNotEmpty()) {
+                    direction = escapeDirections.random()
+                    newHead = Pair(head.first + direction.first, head.second + direction.second)
+                } else {
                     gameOver()
                     return
                 }
-                
-                // 优先选择远离边缘的方向（距离中心更近）
-                val centerX = cols / 2
-                val centerY = rows / 2
-                val priorityDirections = possibleDirections.filter { dir ->
-                    val nextPos = Pair(head.first + dir.first, head.second + dir.second)
-                    val currentDist = Math.abs(head.first - centerX) + Math.abs(head.second - centerY)
-                    val nextDist = Math.abs(nextPos.first - centerX) + Math.abs(nextPos.second - centerY)
-                    nextDist < currentDist
-                }
-                
-                // 优先选择朝向中心的方向，否则随机
-                direction = if (priorityDirections.isNotEmpty()) {
-                    priorityDirections.random()
-                } else {
-                    possibleDirections.random()
-                }
-                newHead = Pair(head.first + direction.first, head.second + direction.second)
             } else {
                 gameOver()
                 return
