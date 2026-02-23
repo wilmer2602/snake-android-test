@@ -103,24 +103,52 @@ class MainActivity : Activity() {
         gameView = SnakeView(this)
 
         // 底部控制区
-        val controlLayout = FrameLayout(this).apply {
+        val controlLayout = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
             setBackgroundColor(Color.parseColor("#2d2d2d"))
-            setPadding(16, 20, 16, 20)
+            setPadding(16, 16, 16, 16)
+        }
+
+        // 顶部功能按钮行
+        val functionRow = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
-            )
+            ).apply { bottomMargin = 16 }
         }
 
-        // 方向键容器（居中）
+        val restartBtn = createFunctionButton("🔄", Color.parseColor("#ff6b6b")) {
+            gameView.reset()
+            updateScore()
+        }
+        val pauseBtn = createFunctionButton("⏸", Color.parseColor("#4ecdc4")) {
+            gameView.togglePause()
+        }
+        val slowBtn = createFunctionButton("🐌", Color.parseColor("#ffa726")) {
+            gameView.decreaseSpeed()
+            updateSpeed()
+        }
+        val speedBtn = createFunctionButton("⚡", Color.parseColor("#95e1d3")) {
+            gameView.increaseSpeed()
+            updateSpeed()
+        }
+        val modeBtn = createFunctionButton("♾", Color.parseColor("#f38181")) {
+            gameView.toggleEndlessMode()
+            updateMode()
+        }
+
+        functionRow.addView(restartBtn)
+        functionRow.addView(pauseBtn)
+        functionRow.addView(slowBtn)
+        functionRow.addView(speedBtn)
+        functionRow.addView(modeBtn)
+
+        // 方向键区域
         val arrowContainer = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             gravity = Gravity.CENTER
-            layoutParams = FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.WRAP_CONTENT,
-                FrameLayout.LayoutParams.WRAP_CONTENT,
-                Gravity.CENTER
-            )
         }
 
         val arrowRow1 = LinearLayout(this).apply {
@@ -166,50 +194,8 @@ class MainActivity : Activity() {
         arrowContainer.addView(arrowRow2)
         arrowContainer.addView(arrowRow3)
 
-        // 左上角：重置
-        val restartBtn = createCornerButton("🔄\n重置", Color.parseColor("#ff6b6b")) {
-            gameView.reset()
-            updateScore()
-        }.apply {
-            layoutParams = FrameLayout.LayoutParams(
-                90, 90, Gravity.TOP or Gravity.START
-            ).apply { setMargins(8, 8, 0, 0) }
-        }
-
-        // 右上角：暂停
-        val pauseBtn = createCornerButton("⏸\n暂停", Color.parseColor("#4ecdc4")) {
-            gameView.togglePause()
-        }.apply {
-            layoutParams = FrameLayout.LayoutParams(
-                90, 90, Gravity.TOP or Gravity.END
-            ).apply { setMargins(0, 8, 8, 0) }
-        }
-
-        // 左下角：减速
-        val slowBtn = createCornerButton("🐌\n减速", Color.parseColor("#ffa726")) {
-            gameView.decreaseSpeed()
-            updateSpeed()
-        }.apply {
-            layoutParams = FrameLayout.LayoutParams(
-                90, 90, Gravity.BOTTOM or Gravity.START
-            ).apply { setMargins(8, 0, 0, 8) }
-        }
-
-        // 右下角：加速
-        val speedBtn = createCornerButton("⚡\n加速", Color.parseColor("#95e1d3")) {
-            gameView.increaseSpeed()
-            updateSpeed()
-        }.apply {
-            layoutParams = FrameLayout.LayoutParams(
-                90, 90, Gravity.BOTTOM or Gravity.END
-            ).apply { setMargins(0, 0, 8, 8) }
-        }
-
+        controlLayout.addView(functionRow)
         controlLayout.addView(arrowContainer)
-        controlLayout.addView(restartBtn)
-        controlLayout.addView(pauseBtn)
-        controlLayout.addView(slowBtn)
-        controlLayout.addView(speedBtn)
 
         gameContainer.addView(gameView)
         mainLayout.addView(infoLayout)
@@ -224,14 +210,15 @@ class MainActivity : Activity() {
     private fun createArrowButton(text: String, onClick: () -> Unit): Button {
         return Button(this).apply {
             this.text = text
-            textSize = 48f
+            textSize = 56f
+            gravity = Gravity.CENTER
             setTextColor(Color.WHITE)
             setBackgroundColor(Color.parseColor("#4a4a4a"))
             setPadding(0, 0, 0, 0)
             elevation = 8f
             stateListAnimator = null
-            layoutParams = LinearLayout.LayoutParams(120, 120).apply {
-                setMargins(4, 4, 4, 4)
+            layoutParams = LinearLayout.LayoutParams(130, 130).apply {
+                setMargins(6, 6, 6, 6)
             }
             setOnClickListener { 
                 alpha = 0.7f
@@ -244,14 +231,15 @@ class MainActivity : Activity() {
     private fun createCenterButton(text: String, onClick: () -> Unit): Button {
         return Button(this).apply {
             this.text = text
-            textSize = 32f
+            textSize = 40f
+            gravity = Gravity.CENTER
             setTextColor(Color.WHITE)
             setBackgroundColor(Color.parseColor("#ff9800"))
             setPadding(0, 0, 0, 0)
             elevation = 8f
             stateListAnimator = null
-            layoutParams = LinearLayout.LayoutParams(120, 120).apply {
-                setMargins(4, 4, 4, 4)
+            layoutParams = LinearLayout.LayoutParams(130, 130).apply {
+                setMargins(6, 6, 6, 6)
             }
             setOnClickListener { 
                 alpha = 0.7f
@@ -261,15 +249,19 @@ class MainActivity : Activity() {
         }
     }
 
-    private fun createCornerButton(text: String, color: Int, onClick: () -> Unit): Button {
+    private fun createFunctionButton(text: String, color: Int, onClick: () -> Unit): Button {
         return Button(this).apply {
             this.text = text
-            textSize = 18f
+            textSize = 32f
+            gravity = Gravity.CENTER
             setTextColor(Color.WHITE)
             setBackgroundColor(color)
-            setPadding(4, 4, 4, 4)
+            setPadding(0, 0, 0, 0)
             elevation = 8f
             stateListAnimator = null
+            layoutParams = LinearLayout.LayoutParams(90, 90).apply {
+                setMargins(8, 0, 8, 0)
+            }
             setOnClickListener { 
                 alpha = 0.7f
                 postDelayed({ alpha = 1f }, 100)
