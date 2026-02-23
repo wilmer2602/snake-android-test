@@ -94,31 +94,25 @@ class SnakeView(context: Context) : View(context) {
                 }
             }
             
-            // 检查下一步是否会撞到自己
-            val testRight = Pair(head.first + 1, head.second)
-            val testLeft = Pair(head.first - 1, head.second)
-            val testDown = Pair(head.first, head.second + 1)
-            val testUp = Pair(head.first, head.second - 1)
-            
-            // 优先朝食物方向移动，但避免撞自己
+            // 优先朝食物方向移动
             if (Math.abs(dx) > Math.abs(dy)) {
-                if (dx > 0 && direction != Pair(-1, 0) && !snake.contains(testRight)) {
+                if (dx > 0 && direction != Pair(-1, 0)) {
                     direction = Pair(1, 0)
-                } else if (dx < 0 && direction != Pair(1, 0) && !snake.contains(testLeft)) {
+                } else if (dx < 0 && direction != Pair(1, 0)) {
                     direction = Pair(-1, 0)
-                } else if (dy > 0 && direction != Pair(0, -1) && !snake.contains(testDown)) {
+                } else if (dy > 0 && direction != Pair(0, -1)) {
                     direction = Pair(0, 1)
-                } else if (dy < 0 && direction != Pair(0, 1) && !snake.contains(testUp)) {
+                } else if (dy < 0 && direction != Pair(0, 1)) {
                     direction = Pair(0, -1)
                 }
             } else {
-                if (dy > 0 && direction != Pair(0, -1) && !snake.contains(testDown)) {
+                if (dy > 0 && direction != Pair(0, -1)) {
                     direction = Pair(0, 1)
-                } else if (dy < 0 && direction != Pair(0, 1) && !snake.contains(testUp)) {
+                } else if (dy < 0 && direction != Pair(0, 1)) {
                     direction = Pair(0, -1)
-                } else if (dx > 0 && direction != Pair(-1, 0) && !snake.contains(testRight)) {
+                } else if (dx > 0 && direction != Pair(-1, 0)) {
                     direction = Pair(1, 0)
-                } else if (dx < 0 && direction != Pair(1, 0) && !snake.contains(testLeft)) {
+                } else if (dx < 0 && direction != Pair(1, 0)) {
                     direction = Pair(-1, 0)
                 }
             }
@@ -140,9 +134,13 @@ class SnakeView(context: Context) : View(context) {
             }
         }
 
+        // 撞到自己：移除被撞的部分，继续前进
         if (snake.contains(newHead)) {
-            gameOver()
-            return
+            val hitIndex = snake.indexOf(newHead)
+            // 移除从被撞位置到尾部的所有部分
+            for (i in snake.size - 1 downTo hitIndex) {
+                snake.removeAt(i)
+            }
         }
 
         snake.add(0, newHead)
