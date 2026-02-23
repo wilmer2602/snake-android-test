@@ -134,14 +134,7 @@ class SnakeView(context: Context) : View(context) {
             }
         }
 
-        // 撞到自己：移除被撞的部分，继续前进
-        if (snake.contains(newHead)) {
-            val hitIndex = snake.indexOf(newHead)
-            // 移除从被撞位置到尾部的所有部分
-            for (i in snake.size - 1 downTo hitIndex) {
-                snake.removeAt(i)
-            }
-        }
+        // 撞到自己：无影响，直接穿过（不检查碰撞）
 
         snake.add(0, newHead)
 
