@@ -96,138 +96,115 @@ class SnakeView(context: Context) : View(context) {
         
         val head = snake.first()
         
-        // 检查是否靠近墙边（距离<=3格）
-        val nearLeftWall = head.first <= 3
-        val nearRightWall = head.first >= cols - 4
-        val nearTopWall = head.second <= 3
-        val nearBottomWall = head.second >= rows - 4
-        
-        // 如果靠近墙且不在强制直行期间，调整方向远离墙
-        if (stepsAfterWallHit == 0 && !isAutoWalk) {
-            if (nearLeftWall && direction.first < 0) {
-                // 靠近左墙且向左，改为向右或上下
-                val escapeOptions = mutableListOf<Pair<Int, Int>>()
-                escapeOptions.add(Pair(1, 0)) // 向右
-                if (!nearTopWall) escapeOptions.add(Pair(0, -1))
-                if (!nearBottomWall) escapeOptions.add(Pair(0, 1))
-                direction = escapeOptions.random()
-            } else if (nearRightWall && direction.first > 0) {
-                // 靠近右墙且向右
-                val escapeOptions = mutableListOf<Pair<Int, Int>>()
-                escapeOptions.add(Pair(-1, 0)) // 向左
-                if (!nearTopWall) escapeOptions.add(Pair(0, -1))
-                if (!nearBottomWall) escapeOptions.add(Pair(0, 1))
-                direction = escapeOptions.random()
-            } else if (nearTopWall && direction.second < 0) {
-                // 靠近上墙且向上
-                val escapeOptions = mutableListOf<Pair<Int, Int>>()
-                escapeOptions.add(Pair(0, 1)) // 向下
-                if (!nearLeftWall) escapeOptions.add(Pair(-1, 0))
-                if (!nearRightWall) escapeOptions.add(Pair(1, 0))
-                direction = escapeOptions.random()
-            } else if (nearBottomWall && direction.second > 0) {
-                // 靠近下墙且向下
-                val escapeOptions = mutableListOf<Pair<Int, Int>>()
-                escapeOptions.add(Pair(0, -1)) // 向上
-                if (!nearLeftWall) escapeOptions.add(Pair(-1, 0))
-                if (!nearRightWall) escapeOptions.add(Pair(1, 0))
-                direction = escapeOptions.random()
+        // 智能避墙系统：提前预判并远离墙壁
+        if (!isAutoWalk && isEndlessMode) {
+            val safeZone = 5  // 安全区域：距离墙5格以上
+            val dangerZone = 3  // 危险区域：距离墙3格以内
+            
+            val distToLeft = head.first
+            val distToRight = cols - 1 - head.first
+            val distToTop = head.second
+            val distToBottom = rows - 1 - head.second
+            
+            // 计算到中心的方向（最安全的方向）
+            val centerX = cols / 2
+            val centerY = rows / 2
+            val towardCenterX = if (head.first < centerX) 1 else if (head.first > centerX) -1 else 0
+            val towardCenterY = if (head.second < centerY) 1 else if (head.second > centerY) -1 else 0
+            
+            // 危险检测：如果在危险区域且朝向墙壁，立即转向
+            var needCorrection = false
+            val safeDirections = mutableListOf<Pair<Int, Int>>()
+            
+            if (distToLeft < dangerZone && direction.first <= 0) {
+                needCorrection = true
+            } else if (distToRight < dangerZone && direction.first >= 0) {
+                needCorrection = true
+            } else if (distToTop < dangerZone && direction.second <= 0) {
+                needCorrection = true
+            } else if (distToBottom < dangerZone && direction.second >= 0) {
+                needCorrection = true
+            }
+            
+            if (needCorrection) {
+                // 收集所有朝向中心的安全方向
+                if (towardCenterX > 0 && distToRight > safeZone) {
+                    safeDirections.add(Pair(1, 0))
+                } else if (towardCenterX < 0 && distToLeft > safeZone) {
+                    safeDirections.add(Pair(-1, 0))
+                }
+                
+                if (towardCenterY > 0 && distToBottom > safeZone) {
+                    safeDirections.add(Pair(0, 1))
+                } else if (towardCenterY < 0 && distToTop > safeZone) {
+                    safeDirections.add(Pair(0, -1))
+                }
+                
+                // 如果没有朝向中心的安全方向，选择任何远离墙的方向
+                if (safeDirections.isEmpty()) {
+                    if (distToLeft > distToRight) safeDirections.add(Pair(-1, 0))
+                    else safeDirections.add(Pair(1, 0))
+                    
+                    if (distToTop > distToBottom) safeDirections.add(Pair(0, -1))
+                    else safeDirections.add(Pair(0, 1))
+                }
+                
+                // 选择最安全的方向
+                if (safeDirections.isNotEmpty()) {
+                    direction = safeDirections.random()
+                    stepsAfterWallHit = 8  // 强制直行8步，确保远离墙壁
+                }
             }
         }
         
-        // 自动游走：智能寻找食物
+        // 自动游走AI
         if (isAutoWalk) {
-            var dx = food.first - head.first
-            var dy = food.second - head.second
+            val dx = food.first - head.first
+            val dy = food.second - head.second
             
-            // 无尽模式：考虑穿墙的最短路径
-            if (isEndlessMode) {
-                if (Math.abs(dx) > cols / 2) {
-                    dx = if (dx > 0) dx - cols else dx + cols
-                }
-                if (Math.abs(dy) > rows / 2) {
-                    dy = if (dy > 0) dy - rows else dy + rows
-                }
-            }
-            
-            // 优先朝食物方向移动
             if (Math.abs(dx) > Math.abs(dy)) {
-                if (dx > 0 && direction != Pair(-1, 0)) {
-                    direction = Pair(1, 0)
-                } else if (dx < 0 && direction != Pair(1, 0)) {
-                    direction = Pair(-1, 0)
-                } else if (dy > 0 && direction != Pair(0, -1)) {
-                    direction = Pair(0, 1)
-                } else if (dy < 0 && direction != Pair(0, 1)) {
-                    direction = Pair(0, -1)
-                }
+                if (dx > 0 && direction != Pair(-1, 0)) direction = Pair(1, 0)
+                else if (dx < 0 && direction != Pair(1, 0)) direction = Pair(-1, 0)
+                else if (dy > 0 && direction != Pair(0, -1)) direction = Pair(0, 1)
+                else if (dy < 0 && direction != Pair(0, 1)) direction = Pair(0, -1)
             } else {
-                if (dy > 0 && direction != Pair(0, -1)) {
-                    direction = Pair(0, 1)
-                } else if (dy < 0 && direction != Pair(0, 1)) {
-                    direction = Pair(0, -1)
-                } else if (dx > 0 && direction != Pair(-1, 0)) {
-                    direction = Pair(1, 0)
-                } else if (dx < 0 && direction != Pair(1, 0)) {
-                    direction = Pair(-1, 0)
-                }
+                if (dy > 0 && direction != Pair(0, -1)) direction = Pair(0, 1)
+                else if (dy < 0 && direction != Pair(0, 1)) direction = Pair(0, -1)
+                else if (dx > 0 && direction != Pair(-1, 0)) direction = Pair(1, 0)
+                else if (dx < 0 && direction != Pair(1, 0)) direction = Pair(-1, 0)
             }
         }
         
-        // head 已经在函数开头定义，这里不需要重复
         var newHead = Pair(head.first + direction.first, head.second + direction.second)
 
-        // 检查是否撞墙
+        // 撞墙处理
         val hitWall = newHead.first < 0 || newHead.first >= cols || 
                       newHead.second < 0 || newHead.second >= rows
 
         if (hitWall) {
             if (isEndlessMode) {
-                // 无尽模式：撞墙惩罚
                 wallHitCount++
                 
-                // 减少2节身体
+                // 惩罚：减2节
                 if (snake.size > 1) {
-                    val removeCount = Math.min(2, snake.size - 1)
-                    repeat(removeCount) {
-                        if (snake.size > 1) {
-                            snake.removeAt(snake.size - 1)
-                        }
+                    repeat(Math.min(2, snake.size - 1)) {
+                        if (snake.size > 1) snake.removeAt(snake.size - 1)
                     }
                 }
                 
-                // 找出所有远离墙的方向
-                val escapeDirections = mutableListOf<Pair<Int, Int>>()
+                // 强制朝向场地中心
+                val centerX = cols / 2
+                val centerY = rows / 2
+                val toCenterX = centerX - head.first
+                val toCenterY = centerY - head.second
                 
-                // 根据撞到哪面墙，选择逃离方向
-                if (newHead.first < 0) {
-                    // 撞左墙，必须向右
-                    escapeDirections.add(Pair(1, 0))
-                } else if (newHead.first >= cols) {
-                    // 撞右墙，必须向左
-                    escapeDirections.add(Pair(-1, 0))
-                }
-                
-                if (newHead.second < 0) {
-                    // 撞上墙，必须向下
-                    escapeDirections.add(Pair(0, 1))
-                } else if (newHead.second >= rows) {
-                    // 撞下墙，必须向上
-                    escapeDirections.add(Pair(0, -1))
-                }
-                
-                // 如果在角落，随机选一个逃离方向
-                direction = if (escapeDirections.isNotEmpty()) {
-                    escapeDirections.random()
+                direction = if (Math.abs(toCenterX) > Math.abs(toCenterY)) {
+                    if (toCenterX > 0) Pair(1, 0) else Pair(-1, 0)
                 } else {
-                    // 保险：选择反向
-                    Pair(-direction.first, -direction.second)
+                    if (toCenterY > 0) Pair(0, 1) else Pair(0, -1)
                 }
                 
-                // 设置直行5步
-                stepsAfterWallHit = 5
-                
-                // 重新计算新头部位置（从当前head开始，用新方向）
+                stepsAfterWallHit = 10  // 强制朝中心直行10步
                 newHead = Pair(head.first + direction.first, head.second + direction.second)
             } else {
                 gameOver()
@@ -235,7 +212,7 @@ class SnakeView(context: Context) : View(context) {
             }
         }
         
-        // 撞墙后直行计数
+        // 直行计数递减
         if (stepsAfterWallHit > 0) {
             stepsAfterWallHit--
         }
