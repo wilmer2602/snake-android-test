@@ -39,6 +39,7 @@ class SnakeView(context: Context) : View(context) {
     private val rows = 30
 
     private var snake = mutableListOf<Pair<Int, Int>>().apply { add(Pair(10, 10)) }
+    private val snakeLock = Any()  // 用于同步 snake 访问
     private var direction = Pair(1, 0)
     private var food = generateFood()
     private var score = 0
@@ -55,20 +56,36 @@ class SnakeView(context: Context) : View(context) {
     
     @Volatile
     private var isUpdating = false
+    
+    @Volatile
+    private var gameThread: Thread? = null
 
     init {
-        val thread = object : Thread() {
+        startGameThread()
+    }
+    
+    private fun startGameThread() {
+        gameThread = object : Thread() {
             override fun run() {
-                while (true) {
-                    Thread.sleep((baseSpeed / speedMultiplier).toLong())
-                    if (gameRunning && !isPaused) {
-                        move()
-                        postInvalidate()
+                while (gameRunning) {
+                    try {
+                        val sleepTime = (baseSpeed / speedMultiplier).toLong()
+                        Thread.sleep(if (sleepTime > 0) sleepTime else 1)
+                        
+                        if (gameRunning && !isPaused) {
+                            move()
+                            postInvalidate()
+                        }
+                    } catch (e: InterruptedException) {
+                        break
+                    } catch (e: Exception) {
+                        // 捕获所有异常，防止闪退
+                        e.printStackTrace()
                     }
                 }
             }
         }
-        thread.start()
+        gameThread?.start()
     }
 
     private fun generateFood(): Pair<Int, Int> {
@@ -85,6 +102,9 @@ class SnakeView(context: Context) : View(context) {
         
         try {
             moveInternal()
+        } catch (e: Exception) {
+            // 捕获异常防止闪退
+            e.printStackTrace()
         } finally {
             isUpdating = false
         }
@@ -229,17 +249,21 @@ class SnakeView(context: Context) : View(context) {
 
         // 撞到自己：无影响，直接穿过（不检查碰撞）
 
-        snake.add(0, newHead)
+        synchronized(snakeLock) {
+            snake.add(0, newHead)
 
-        if (newHead == food) {
-            score++
-            if (snake.size >= cols * rows) {
-                gameOver()
-                return
+            if (newHead == food) {
+                score++
+                if (snake.size >= cols * rows) {
+                    gameOver()
+                    return
+                }
+                food = generateFood()
+            } else {
+                if (snake.size > 0) {
+                    snake.removeAt(snake.size - 1)
+                }
             }
-            food = generateFood()
-        } else {
-            snake.removeAt(snake.size - 1)
         }
     }
 
@@ -248,8 +272,10 @@ class SnakeView(context: Context) : View(context) {
     }
 
     fun reset() {
-        snake.clear()
-        snake.add(Pair(10, 10))
+        synchronized(snakeLock) {
+            snake.clear()
+            snake.add(Pair(10, 10))
+        }
         direction = Pair(1, 0)
         food = generateFood()
         score = 0
@@ -269,7 +295,7 @@ class SnakeView(context: Context) : View(context) {
     fun getElapsedTime(): Long = elapsedTime / 1000
     fun isEndlessMode(): Boolean = isEndlessMode
     fun getWallHitCount(): Int = wallHitCount
-    fun getSnakeLength(): Int = snake.size
+    fun getSnakeLength(): Int = synchronized(snakeLock) { snake.size }
     
     fun toggleEndlessMode() {
         isEndlessMode = !isEndlessMode
@@ -330,30 +356,33 @@ class SnakeView(context: Context) : View(context) {
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
-        val cellSize = width.coerceAtMost(height) / gridSize
-        val offsetX = (width - cols * cellSize) / 2
-        val offsetY = (height - rows * cellSize) / 2
+        
+        try {
+            val cellSize = width.coerceAtMost(height) / gridSize
+            val offsetX = (width - cols * cellSize) / 2
+            val offsetY = (height - rows * cellSize) / 2
 
-        canvas.drawRect(
-            offsetX.toFloat(), offsetY.toFloat(),
-            (offsetX + cols * cellSize).toFloat(), (offsetY + rows * cellSize).toFloat(),
-            borderPaint
-        )
+            canvas.drawRect(
+                offsetX.toFloat(), offsetY.toFloat(),
+                (offsetX + cols * cellSize).toFloat(), (offsetY + rows * cellSize).toFloat(),
+                borderPaint
+            )
 
-        for (i in snake.indices) {
-            val (x, y) = snake[i]
-            
-            // 计算渐变色：从绿色(头)到蓝色(尾)
-            val ratio = if (snake.size > 1) i.toFloat() / (snake.size - 1) else 0f
-            
-            // 头部：亮绿色 #00FF00 (0, 255, 0)
-            // 尾部：深蓝色 #0000FF (0, 0, 255)
-            val red = 0
-            val green = (255 * (1 - ratio)).toInt()
-            val blue = (255 * ratio).toInt()
-            
-            val segmentPaint = Paint().apply {
-                color = Color.rgb(red, green, blue)
+            synchronized(snakeLock) {
+                for (i in snake.indices) {
+                    val (x, y) = snake[i]
+                    
+                    // 计算渐变色：从绿色(头)到蓝色(尾)
+                    val ratio = if (snake.size > 1) i.toFloat() / (snake.size - 1) else 0f
+                    
+                    // 头部：亮绿色 #00FF00 (0, 255, 0)
+                    // 尾部：深蓝色 #0000FF (0, 0, 255)
+                    val red = 0
+                    val green = (255 * (1 - ratio)).toInt()
+                    val blue = (255 * ratio).toInt()
+                    
+                    val segmentPaint = Paint().apply {
+                        color = Color.rgb(red, green, blue)
                 isAntiAlias = true
                 style = Paint.Style.FILL
             }
@@ -420,13 +449,18 @@ class SnakeView(context: Context) : View(context) {
                 canvas.drawPath(path, tonguePaint)
             }
         }
+            }  // synchronized 结束
 
-        canvas.drawRect(
-            (offsetX + food.first * cellSize + 2).toFloat(),
-            (offsetY + food.second * cellSize + 2).toFloat(),
-            (offsetX + (food.first + 1) * cellSize - 2).toFloat(),
-            (offsetY + (food.second + 1) * cellSize - 2).toFloat(),
-            foodPaint
-        )
+            canvas.drawRect(
+                (offsetX + food.first * cellSize + 2).toFloat(),
+                (offsetY + food.second * cellSize + 2).toFloat(),
+                (offsetX + (food.first + 1) * cellSize - 2).toFloat(),
+                (offsetY + (food.second + 1) * cellSize - 2).toFloat(),
+                foodPaint
+            )
+        } catch (e: Exception) {
+            // 捕获绘制异常，防止闪退
+            e.printStackTrace()
+        }
     }
 }
