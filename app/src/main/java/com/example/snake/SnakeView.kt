@@ -50,6 +50,9 @@ class SnakeView(context: Context) : View(context) {
     private var startTime = 0L
     private var elapsedTime = 0L
     private var isAutoWalk = false
+    
+    @Volatile
+    private var isUpdating = false
 
     init {
         val thread = object : Thread() {
@@ -75,6 +78,17 @@ class SnakeView(context: Context) : View(context) {
     }
 
     private fun move() {
+        if (isUpdating) return
+        isUpdating = true
+        
+        try {
+            moveInternal()
+        } finally {
+            isUpdating = false
+        }
+    }
+    
+    private fun moveInternal() {
         if (startTime == 0L) startTime = System.currentTimeMillis()
         elapsedTime = System.currentTimeMillis() - startTime
         
@@ -127,20 +141,27 @@ class SnakeView(context: Context) : View(context) {
 
         if (hitWall) {
             if (isEndlessMode) {
-                // 无尽模式：简单随机选择任意有效方向
+                // 无尽模式：撞墙惩罚 - 减少2节身体
+                if (snake.size > 1) {
+                    val removeCount = Math.min(2, snake.size - 1)
+                    repeat(removeCount) {
+                        if (snake.size > 1) {
+                            snake.removeAt(snake.size - 1)
+                        }
+                    }
+                }
+                
+                // 随机选择有效方向
                 val validDirections = mutableListOf<Pair<Int, Int>>()
                 
-                // 添加所有不会立即撞墙的方向
                 if (head.first > 0) validDirections.add(Pair(-1, 0))
                 if (head.first < cols - 1) validDirections.add(Pair(1, 0))
                 if (head.second > 0) validDirections.add(Pair(0, -1))
                 if (head.second < rows - 1) validDirections.add(Pair(0, 1))
                 
-                // 随机选择（简单有效）
                 direction = if (validDirections.isNotEmpty()) {
                     validDirections.random()
                 } else {
-                    // 理论上不会到这里，但保险起见
                     Pair(1, 0)
                 }
                 
