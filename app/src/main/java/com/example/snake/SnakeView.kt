@@ -254,7 +254,9 @@ class SnakeView(context: Context) : View(context) {
 
             if (newHead == food) {
                 score++
-                if (snake.size >= cols * rows) {
+                // 无尽模式：允许蛇无限增长
+                // 普通模式：填满场地即胜利
+                if (!isEndlessMode && snake.size >= cols * rows) {
                     gameOver()
                     return
                 }
@@ -369,7 +371,11 @@ class SnakeView(context: Context) : View(context) {
             )
 
             synchronized(snakeLock) {
-                for (i in snake.indices) {
+                // 优化：蛇太长时只绘制部分身体，但始终绘制头部
+                val maxSegmentsToDraw = 100  // 最多绘制100节
+                val drawStart = if (snake.size > maxSegmentsToDraw) snake.size - maxSegmentsToDraw else 0
+                
+                for (i in drawStart until snake.size) {
                     val (x, y) = snake[i]
                     
                     // 计算渐变色：从绿色(头)到蓝色(尾)
