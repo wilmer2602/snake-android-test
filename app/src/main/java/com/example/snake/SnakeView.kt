@@ -156,27 +156,38 @@ class SnakeView(context: Context) : View(context) {
                     }
                 }
                 
-                // 随机选择有效方向
-                val validDirections = mutableListOf<Pair<Int, Int>>()
+                // 找出所有远离墙的方向
+                val escapeDirections = mutableListOf<Pair<Int, Int>>()
                 
-                if (head.first > 0) validDirections.add(Pair(-1, 0))
-                if (head.first < cols - 1) validDirections.add(Pair(1, 0))
-                if (head.second > 0) validDirections.add(Pair(0, -1))
-                if (head.second < rows - 1) validDirections.add(Pair(0, 1))
+                // 根据撞到哪面墙，选择逃离方向
+                if (newHead.first < 0) {
+                    // 撞左墙，必须向右
+                    escapeDirections.add(Pair(1, 0))
+                } else if (newHead.first >= cols) {
+                    // 撞右墙，必须向左
+                    escapeDirections.add(Pair(-1, 0))
+                }
                 
-                // 移除当前方向（避免继续撞墙）
-                validDirections.remove(direction)
+                if (newHead.second < 0) {
+                    // 撞上墙，必须向下
+                    escapeDirections.add(Pair(0, 1))
+                } else if (newHead.second >= rows) {
+                    // 撞下墙，必须向上
+                    escapeDirections.add(Pair(0, -1))
+                }
                 
-                direction = if (validDirections.isNotEmpty()) {
-                    validDirections.random()
+                // 如果在角落，随机选一个逃离方向
+                direction = if (escapeDirections.isNotEmpty()) {
+                    escapeDirections.random()
                 } else {
-                    // 如果只有当前方向，选择反向
+                    // 保险：选择反向
                     Pair(-direction.first, -direction.second)
                 }
                 
                 // 设置直行5步
                 stepsAfterWallHit = 5
                 
+                // 重新计算新头部位置（从当前head开始，用新方向）
                 newHead = Pair(head.first + direction.first, head.second + direction.second)
             } else {
                 gameOver()
