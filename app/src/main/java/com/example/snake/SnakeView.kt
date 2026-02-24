@@ -141,11 +141,21 @@ class SnakeView(context: Context) : View(context) {
 
         if (hitWall) {
             if (isEndlessMode) {
-                // 无尽模式：穿墙到对面（像贪吃蛇经典玩法）
-                newHead = Pair(
-                    (newHead.first + cols) % cols,
-                    (newHead.second + rows) % rows
-                )
+                // 无尽模式：撞墙后随机转向（不减身体）
+                val validDirections = mutableListOf<Pair<Int, Int>>()
+                
+                if (head.first > 0) validDirections.add(Pair(-1, 0))
+                if (head.first < cols - 1) validDirections.add(Pair(1, 0))
+                if (head.second > 0) validDirections.add(Pair(0, -1))
+                if (head.second < rows - 1) validDirections.add(Pair(0, 1))
+                
+                direction = if (validDirections.isNotEmpty()) {
+                    validDirections.random()
+                } else {
+                    Pair(1, 0)
+                }
+                
+                newHead = Pair(head.first + direction.first, head.second + direction.second)
             } else {
                 gameOver()
                 return
