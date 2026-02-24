@@ -86,10 +86,11 @@ class MainActivity : Activity() {
         }
         
         wallHitText = TextView(this).apply {
-            text = "撞墙: 0"
+            text = "撞墙: 0次"
             textSize = 16f
-            setTextColor(Color.parseColor("#ff6347"))
+            setTextColor(Color.parseColor("#ff4500"))
             gravity = Gravity.END
+            setPadding(8, 0, 0, 0)
             layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
         }
 
@@ -312,7 +313,7 @@ class MainActivity : Activity() {
         }
         
         // 更新撞墙次数
-        wallHitText.text = "撞墙: ${gameView.getWallHitCount()}"
+        wallHitText.text = "撞墙: ${gameView.getWallHitCount()}次"
     }
 
     private fun updateSpeed() {
