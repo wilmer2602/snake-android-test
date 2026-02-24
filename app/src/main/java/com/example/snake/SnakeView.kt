@@ -174,7 +174,7 @@ class SnakeView(context: Context) : View(context) {
             }
         }
         
-        val head = snake.first()
+        // head 已经在函数开头定义，这里不需要重复
         var newHead = Pair(head.first + direction.first, head.second + direction.second)
 
         // 检查是否撞墙
