@@ -192,19 +192,29 @@ class SnakeView(context: Context) : View(context) {
                     }
                 }
                 
-                // 强制朝向场地中心
+                // 强制朝向场地中心 - 确保新方向不会再撞墙
                 val centerX = cols / 2
                 val centerY = rows / 2
-                val toCenterX = centerX - head.first
-                val toCenterY = centerY - head.second
                 
-                direction = if (Math.abs(toCenterX) > Math.abs(toCenterY)) {
-                    if (toCenterX > 0) Pair(1, 0) else Pair(-1, 0)
-                } else {
-                    if (toCenterY > 0) Pair(0, 1) else Pair(0, -1)
-                }
+                // 根据当前位置选择最安全的方向
+                val safeDirections = mutableListOf<Pair<Int, Int>>()
                 
-                stepsAfterWallHit = 10  // 强制朝中心直行10步
+                // 检查四个方向，只添加不会立即撞墙的
+                if (head.first > 0) safeDirections.add(Pair(-1, 0))
+                if (head.first < cols - 1) safeDirections.add(Pair(1, 0))
+                if (head.second > 0) safeDirections.add(Pair(0, -1))
+                if (head.second < rows - 1) safeDirections.add(Pair(0, 1))
+                
+                // 从安全方向中选择最朝向中心的
+                direction = safeDirections.maxByOrNull { dir ->
+                    val nextX = head.first + dir.first
+                    val nextY = head.second + dir.second
+                    val currentDist = Math.abs(head.first - centerX) + Math.abs(head.second - centerY)
+                    val nextDist = Math.abs(nextX - centerX) + Math.abs(nextY - centerY)
+                    currentDist - nextDist  // 距离减少越多越好
+                } ?: Pair(1, 0)
+                
+                stepsAfterWallHit = 15  // 强制直行15步，确保远离墙壁
                 newHead = Pair(head.first + direction.first, head.second + direction.second)
             } else {
                 gameOver()
@@ -259,6 +269,7 @@ class SnakeView(context: Context) : View(context) {
     fun getElapsedTime(): Long = elapsedTime / 1000
     fun isEndlessMode(): Boolean = isEndlessMode
     fun getWallHitCount(): Int = wallHitCount
+    fun getSnakeLength(): Int = snake.size
     
     fun toggleEndlessMode() {
         isEndlessMode = !isEndlessMode

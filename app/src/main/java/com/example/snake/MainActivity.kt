@@ -17,6 +17,7 @@ class MainActivity : Activity() {
     private lateinit var timeText: TextView
     private lateinit var modeText: TextView
     private lateinit var wallHitText: TextView
+    private lateinit var lengthText: TextView
     private var highScore = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,14 +41,14 @@ class MainActivity : Activity() {
 
         scoreText = TextView(this).apply {
             text = "分数: 0"
-            textSize = 18f
+            textSize = 16f
             setTextColor(Color.parseColor("#00ff00"))
             layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
         }
 
         highScoreText = TextView(this).apply {
             text = "最高: 0"
-            textSize = 18f
+            textSize = 16f
             setTextColor(Color.parseColor("#ffd700"))
             gravity = Gravity.CENTER
             layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
@@ -55,7 +56,7 @@ class MainActivity : Activity() {
 
         speedText = TextView(this).apply {
             text = "速度: 1x"
-            textSize = 18f
+            textSize = 16f
             setTextColor(Color.parseColor("#00bfff"))
             gravity = Gravity.END
             layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
@@ -97,9 +98,28 @@ class MainActivity : Activity() {
         infoRow2.addView(timeText)
         infoRow2.addView(modeText)
         infoRow2.addView(wallHitText)
+        
+        val infoRow3 = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            setPadding(0, 6, 0, 0)
+        }
+        
+        lengthText = TextView(this).apply {
+            text = "长度: 1"
+            textSize = 16f
+            setTextColor(Color.parseColor("#32cd32"))
+            gravity = Gravity.CENTER
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            )
+        }
+        
+        infoRow3.addView(lengthText)
 
         infoLayout.addView(infoRow1)
         infoLayout.addView(infoRow2)
+        infoLayout.addView(infoRow3)
 
         // 游戏区域
         val gameContainer = FrameLayout(this).apply {
@@ -314,6 +334,9 @@ class MainActivity : Activity() {
         
         // 更新撞墙次数
         wallHitText.text = "撞墙: ${gameView.getWallHitCount()}次"
+        
+        // 更新长度
+        lengthText.text = "长度: ${gameView.getSnakeLength()}"
     }
 
     private fun updateSpeed() {
