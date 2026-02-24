@@ -16,6 +16,7 @@ class MainActivity : Activity() {
     private lateinit var speedText: TextView
     private lateinit var timeText: TextView
     private lateinit var modeText: TextView
+    private lateinit var wallHitText: TextView
     private var highScore = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -80,12 +81,21 @@ class MainActivity : Activity() {
             text = "模式: 普通"
             textSize = 16f
             setTextColor(Color.parseColor("#9370db"))
+            gravity = Gravity.CENTER
+            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+        }
+        
+        wallHitText = TextView(this).apply {
+            text = "撞墙: 0"
+            textSize = 16f
+            setTextColor(Color.parseColor("#ff6347"))
             gravity = Gravity.END
             layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
         }
 
         infoRow2.addView(timeText)
         infoRow2.addView(modeText)
+        infoRow2.addView(wallHitText)
 
         infoLayout.addView(infoRow1)
         infoLayout.addView(infoRow2)
@@ -300,6 +310,9 @@ class MainActivity : Activity() {
             highScore = score
             highScoreText.text = "最高: $highScore"
         }
+        
+        // 更新撞墙次数
+        wallHitText.text = "撞墙: ${gameView.getWallHitCount()}"
     }
 
     private fun updateSpeed() {

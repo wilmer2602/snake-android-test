@@ -50,6 +50,8 @@ class SnakeView(context: Context) : View(context) {
     private var startTime = 0L
     private var elapsedTime = 0L
     private var isAutoWalk = false
+    private var wallHitCount = 0
+    private var stepsAfterWallHit = 0
     
     @Volatile
     private var isUpdating = false
@@ -141,7 +143,20 @@ class SnakeView(context: Context) : View(context) {
 
         if (hitWall) {
             if (isEndlessMode) {
-                // 无尽模式：撞墙后随机转向（不减身体）
+                // 无尽模式：撞墙惩罚
+                wallHitCount++
+                
+                // 减少2节身体
+                if (snake.size > 1) {
+                    val removeCount = Math.min(2, snake.size - 1)
+                    repeat(removeCount) {
+                        if (snake.size > 1) {
+                            snake.removeAt(snake.size - 1)
+                        }
+                    }
+                }
+                
+                // 随机选择有效方向
                 val validDirections = mutableListOf<Pair<Int, Int>>()
                 
                 if (head.first > 0) validDirections.add(Pair(-1, 0))
@@ -149,17 +164,29 @@ class SnakeView(context: Context) : View(context) {
                 if (head.second > 0) validDirections.add(Pair(0, -1))
                 if (head.second < rows - 1) validDirections.add(Pair(0, 1))
                 
+                // 移除当前方向（避免继续撞墙）
+                validDirections.remove(direction)
+                
                 direction = if (validDirections.isNotEmpty()) {
                     validDirections.random()
                 } else {
-                    Pair(1, 0)
+                    // 如果只有当前方向，选择反向
+                    Pair(-direction.first, -direction.second)
                 }
+                
+                // 设置直行5步
+                stepsAfterWallHit = 5
                 
                 newHead = Pair(head.first + direction.first, head.second + direction.second)
             } else {
                 gameOver()
                 return
             }
+        }
+        
+        // 撞墙后直行计数
+        if (stepsAfterWallHit > 0) {
+            stepsAfterWallHit--
         }
 
         // 撞到自己：无影响，直接穿过（不检查碰撞）
@@ -194,6 +221,8 @@ class SnakeView(context: Context) : View(context) {
         startTime = 0L
         elapsedTime = 0L
         isAutoWalk = false
+        wallHitCount = 0
+        stepsAfterWallHit = 0
     }
 
     fun getScore(): Int = score
@@ -201,6 +230,7 @@ class SnakeView(context: Context) : View(context) {
     fun getSpeedMultiplier(): Double = speedMultiplier
     fun getElapsedTime(): Long = elapsedTime / 1000
     fun isEndlessMode(): Boolean = isEndlessMode
+    fun getWallHitCount(): Int = wallHitCount
     
     fun toggleEndlessMode() {
         isEndlessMode = !isEndlessMode
@@ -250,6 +280,9 @@ class SnakeView(context: Context) : View(context) {
     }
     
     fun setDirection(dx: Int, dy: Int) {
+        // 撞墙后直行期间不允许改变方向
+        if (stepsAfterWallHit > 0) return
+        
         val newDir = Pair(dx, dy)
         // 只防止180度反向，允许同方向（无操作）
         if (newDir == Pair(-direction.first, -direction.second)) return
