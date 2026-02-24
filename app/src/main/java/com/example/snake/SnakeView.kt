@@ -94,9 +94,49 @@ class SnakeView(context: Context) : View(context) {
         if (startTime == 0L) startTime = System.currentTimeMillis()
         elapsedTime = System.currentTimeMillis() - startTime
         
+        val head = snake.first()
+        
+        // 检查是否靠近墙边（距离<=3格）
+        val nearLeftWall = head.first <= 3
+        val nearRightWall = head.first >= cols - 4
+        val nearTopWall = head.second <= 3
+        val nearBottomWall = head.second >= rows - 4
+        
+        // 如果靠近墙且不在强制直行期间，调整方向远离墙
+        if (stepsAfterWallHit == 0 && !isAutoWalk) {
+            if (nearLeftWall && direction.first < 0) {
+                // 靠近左墙且向左，改为向右或上下
+                val escapeOptions = mutableListOf<Pair<Int, Int>>()
+                escapeOptions.add(Pair(1, 0)) // 向右
+                if (!nearTopWall) escapeOptions.add(Pair(0, -1))
+                if (!nearBottomWall) escapeOptions.add(Pair(0, 1))
+                direction = escapeOptions.random()
+            } else if (nearRightWall && direction.first > 0) {
+                // 靠近右墙且向右
+                val escapeOptions = mutableListOf<Pair<Int, Int>>()
+                escapeOptions.add(Pair(-1, 0)) // 向左
+                if (!nearTopWall) escapeOptions.add(Pair(0, -1))
+                if (!nearBottomWall) escapeOptions.add(Pair(0, 1))
+                direction = escapeOptions.random()
+            } else if (nearTopWall && direction.second < 0) {
+                // 靠近上墙且向上
+                val escapeOptions = mutableListOf<Pair<Int, Int>>()
+                escapeOptions.add(Pair(0, 1)) // 向下
+                if (!nearLeftWall) escapeOptions.add(Pair(-1, 0))
+                if (!nearRightWall) escapeOptions.add(Pair(1, 0))
+                direction = escapeOptions.random()
+            } else if (nearBottomWall && direction.second > 0) {
+                // 靠近下墙且向下
+                val escapeOptions = mutableListOf<Pair<Int, Int>>()
+                escapeOptions.add(Pair(0, -1)) // 向上
+                if (!nearLeftWall) escapeOptions.add(Pair(-1, 0))
+                if (!nearRightWall) escapeOptions.add(Pair(1, 0))
+                direction = escapeOptions.random()
+            }
+        }
+        
         // 自动游走：智能寻找食物
         if (isAutoWalk) {
-            val head = snake.first()
             var dx = food.first - head.first
             var dy = food.second - head.second
             
