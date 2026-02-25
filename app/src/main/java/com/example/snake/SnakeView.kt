@@ -289,6 +289,13 @@ class SnakeView(context: Context) : View(context) {
         isAutoWalk = false
         wallHitCount = 0
         stepsAfterWallHit = 0
+        
+        // 如果游戏线程已停止，重新启动
+        if (gameThread?.isAlive == false) {
+            startGameThread()
+        }
+        
+        postInvalidate()
     }
 
     fun getScore(): Int = score

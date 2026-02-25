@@ -268,16 +268,16 @@ class MainActivity : Activity() {
     private fun createArrowButton(drawableRes: Int, onClick: () -> Unit): Button {
         return Button(this).apply {
             setBackgroundColor(Color.parseColor("#4a4a4a"))
-            setPadding(8, 8, 8, 8)
+            setPadding(12, 12, 12, 12)
             elevation = 8f
             stateListAnimator = null
-            layoutParams = LinearLayout.LayoutParams(100, 100).apply {
-                setMargins(4, 4, 4, 4)
+            layoutParams = LinearLayout.LayoutParams(130, 130).apply {
+                setMargins(6, 6, 6, 6)
             }
             
             // 设置箭头图标
             val drawable = resources.getDrawable(drawableRes, null)
-            drawable.setBounds(0, 0, 75, 75)
+            drawable.setBounds(0, 0, 100, 100)
             setCompoundDrawables(null, drawable, null, null)
             
             setOnClickListener { 
@@ -291,7 +291,7 @@ class MainActivity : Activity() {
     private fun createCenterButton(text: String, onClick: () -> Unit): Button {
         return Button(this).apply {
             this.text = text
-            textSize = 30f
+            textSize = 36f
             gravity = Gravity.CENTER
             includeFontPadding = false
             setTextColor(Color.WHITE)
@@ -299,8 +299,8 @@ class MainActivity : Activity() {
             setPadding(0, 0, 0, 0)
             elevation = 8f
             stateListAnimator = null
-            layoutParams = LinearLayout.LayoutParams(100, 100).apply {
-                setMargins(4, 4, 4, 4)
+            layoutParams = LinearLayout.LayoutParams(130, 130).apply {
+                setMargins(6, 6, 6, 6)
             }
             setOnClickListener { 
                 alpha = 0.7f
@@ -313,16 +313,16 @@ class MainActivity : Activity() {
     private fun createSideButton(drawableRes: Int, color: Int, onClick: () -> Unit): Button {
         return Button(this).apply {
             setBackgroundColor(color)
-            setPadding(6, 6, 6, 6)
+            setPadding(10, 10, 10, 10)
             elevation = 8f
             stateListAnimator = null
-            layoutParams = LinearLayout.LayoutParams(70, 70).apply {
-                setMargins(4, 6, 4, 6)
+            layoutParams = LinearLayout.LayoutParams(95, 95).apply {
+                setMargins(6, 8, 6, 8)
             }
             
             // 设置图标
             val drawable = resources.getDrawable(drawableRes, null)
-            drawable.setBounds(0, 0, 55, 55)
+            drawable.setBounds(0, 0, 75, 75)
             setCompoundDrawables(null, drawable, null, null)
             
             setOnClickListener { 
