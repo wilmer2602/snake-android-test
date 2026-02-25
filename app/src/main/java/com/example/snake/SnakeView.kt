@@ -364,15 +364,15 @@ class SnakeView(context: Context) : View(context) {
             val offsetX = (width - cols * cellSize) / 2
             val offsetY = (height - rows * cellSize) / 2
 
-            // 绘制墙壁 - 增强显示
-            // 外边框（粗）
+            // 绘制墙壁 - 增强显示（四边都有装饰）
+            // 外边框（粗白线）
             canvas.drawRect(
                 offsetX.toFloat(), offsetY.toFloat(),
                 (offsetX + cols * cellSize).toFloat(), (offsetY + rows * cellSize).toFloat(),
                 borderPaint
             )
             
-            // 内边框（细线，增强效果）
+            // 内边框（细灰线）
             val innerBorderPaint = Paint().apply {
                 color = Color.parseColor("#888888")
                 strokeWidth = 2f
@@ -384,6 +384,59 @@ class SnakeView(context: Context) : View(context) {
                 (offsetX + cols * cellSize - 3).toFloat(), (offsetY + rows * cellSize - 3).toFloat(),
                 innerBorderPaint
             )
+            
+            // 装饰线条 - 四边都添加
+            val decorPaint = Paint().apply {
+                color = Color.parseColor("#ffaa00")
+                strokeWidth = 3f
+                style = Paint.Style.STROKE
+                isAntiAlias = true
+            }
+            
+            // 上边装饰（橙色线）
+            canvas.drawLine(
+                (offsetX + 8).toFloat(), (offsetY + 8).toFloat(),
+                (offsetX + cols * cellSize - 8).toFloat(), (offsetY + 8).toFloat(),
+                decorPaint
+            )
+            
+            // 下边装饰
+            canvas.drawLine(
+                (offsetX + 8).toFloat(), (offsetY + rows * cellSize - 8).toFloat(),
+                (offsetX + cols * cellSize - 8).toFloat(), (offsetY + rows * cellSize - 8).toFloat(),
+                decorPaint
+            )
+            
+            // 左边装饰
+            canvas.drawLine(
+                (offsetX + 8).toFloat(), (offsetY + 8).toFloat(),
+                (offsetX + 8).toFloat(), (offsetY + rows * cellSize - 8).toFloat(),
+                decorPaint
+            )
+            
+            // 右边装饰
+            canvas.drawLine(
+                (offsetX + cols * cellSize - 8).toFloat(), (offsetY + 8).toFloat(),
+                (offsetX + cols * cellSize - 8).toFloat(), (offsetY + rows * cellSize - 8).toFloat(),
+                decorPaint
+            )
+            
+            // 角落装饰点（四个角）
+            val cornerPaint = Paint().apply {
+                color = Color.parseColor("#ff0000")
+                style = Paint.Style.FILL
+                isAntiAlias = true
+            }
+            val cornerRadius = 6f
+            
+            // 左上角
+            canvas.drawCircle((offsetX + 8).toFloat(), (offsetY + 8).toFloat(), cornerRadius, cornerPaint)
+            // 右上角
+            canvas.drawCircle((offsetX + cols * cellSize - 8).toFloat(), (offsetY + 8).toFloat(), cornerRadius, cornerPaint)
+            // 左下角
+            canvas.drawCircle((offsetX + 8).toFloat(), (offsetY + rows * cellSize - 8).toFloat(), cornerRadius, cornerPaint)
+            // 右下角
+            canvas.drawCircle((offsetX + cols * cellSize - 8).toFloat(), (offsetY + rows * cellSize - 8).toFloat(), cornerRadius, cornerPaint)
 
             synchronized(snakeLock) {
                 // 优化：限制绘制数量，防止卡死
