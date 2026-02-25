@@ -32,7 +32,7 @@ class MainActivity : Activity() {
         val infoLayout = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setBackgroundColor(Color.parseColor("#2d2d2d"))
-            setPadding(16, 12, 16, 12)
+            setPadding(12, 8, 12, 8)
         }
 
         val infoRow1 = LinearLayout(this).apply {
@@ -41,14 +41,14 @@ class MainActivity : Activity() {
 
         scoreText = TextView(this).apply {
             text = "分数: 0"
-            textSize = 16f
+            textSize = 14f
             setTextColor(Color.parseColor("#00ff00"))
             layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
         }
 
         highScoreText = TextView(this).apply {
             text = "最高: 0"
-            textSize = 16f
+            textSize = 14f
             setTextColor(Color.parseColor("#ffd700"))
             gravity = Gravity.CENTER
             layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
@@ -56,7 +56,7 @@ class MainActivity : Activity() {
 
         speedText = TextView(this).apply {
             text = "速度: 1x"
-            textSize = 16f
+            textSize = 14f
             setTextColor(Color.parseColor("#00bfff"))
             gravity = Gravity.END
             layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
@@ -68,19 +68,19 @@ class MainActivity : Activity() {
 
         val infoRow2 = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
-            setPadding(0, 6, 0, 0)
+            setPadding(0, 4, 0, 0)
         }
 
         timeText = TextView(this).apply {
             text = "时间: 0s"
-            textSize = 16f
+            textSize = 14f
             setTextColor(Color.parseColor("#ff69b4"))
             layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
         }
 
         modeText = TextView(this).apply {
             text = "模式: 普通"
-            textSize = 16f
+            textSize = 14f
             setTextColor(Color.parseColor("#9370db"))
             gravity = Gravity.CENTER
             layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
@@ -88,7 +88,7 @@ class MainActivity : Activity() {
         
         wallHitText = TextView(this).apply {
             text = "撞墙: 0次"
-            textSize = 16f
+            textSize = 14f
             setTextColor(Color.parseColor("#ff4500"))
             gravity = Gravity.END
             setPadding(8, 0, 0, 0)
@@ -101,12 +101,12 @@ class MainActivity : Activity() {
         
         val infoRow3 = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
-            setPadding(0, 6, 0, 0)
+            setPadding(0, 4, 0, 0)
         }
         
         lengthText = TextView(this).apply {
             text = "长度: 1"
-            textSize = 16f
+            textSize = 14f
             setTextColor(Color.parseColor("#32cd32"))
             gravity = Gravity.CENTER
             layoutParams = LinearLayout.LayoutParams(
@@ -144,7 +144,7 @@ class MainActivity : Activity() {
         val controlLayout = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
             setBackgroundColor(Color.parseColor("#2d2d2d"))
-            setPadding(16, 16, 16, 16)
+            setPadding(8, 8, 8, 8)
             gravity = Gravity.CENTER
         }
 
@@ -155,7 +155,7 @@ class MainActivity : Activity() {
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
-            ).apply { rightMargin = 16 }
+            ).apply { rightMargin = 8 }
         }
 
         val restartBtn = createSideButton(R.drawable.btn_restart, Color.parseColor("#ff6b6b")) {
@@ -230,7 +230,7 @@ class MainActivity : Activity() {
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
-            ).apply { leftMargin = 16 }
+            ).apply { leftMargin = 8 }
         }
 
         val speedBtn = createSideButton(R.drawable.btn_fast, Color.parseColor("#95e1d3")) {
@@ -268,16 +268,16 @@ class MainActivity : Activity() {
     private fun createArrowButton(drawableRes: Int, onClick: () -> Unit): Button {
         return Button(this).apply {
             setBackgroundColor(Color.parseColor("#4a4a4a"))
-            setPadding(12, 12, 12, 12)
+            setPadding(8, 8, 8, 8)
             elevation = 8f
             stateListAnimator = null
-            layoutParams = LinearLayout.LayoutParams(120, 120).apply {
-                setMargins(6, 6, 6, 6)
+            layoutParams = LinearLayout.LayoutParams(100, 100).apply {
+                setMargins(4, 4, 4, 4)
             }
             
             // 设置箭头图标
             val drawable = resources.getDrawable(drawableRes, null)
-            drawable.setBounds(0, 0, 90, 90)
+            drawable.setBounds(0, 0, 75, 75)
             setCompoundDrawables(null, drawable, null, null)
             
             setOnClickListener { 
@@ -291,7 +291,7 @@ class MainActivity : Activity() {
     private fun createCenterButton(text: String, onClick: () -> Unit): Button {
         return Button(this).apply {
             this.text = text
-            textSize = 36f
+            textSize = 30f
             gravity = Gravity.CENTER
             includeFontPadding = false
             setTextColor(Color.WHITE)
@@ -299,8 +299,8 @@ class MainActivity : Activity() {
             setPadding(0, 0, 0, 0)
             elevation = 8f
             stateListAnimator = null
-            layoutParams = LinearLayout.LayoutParams(120, 120).apply {
-                setMargins(6, 6, 6, 6)
+            layoutParams = LinearLayout.LayoutParams(100, 100).apply {
+                setMargins(4, 4, 4, 4)
             }
             setOnClickListener { 
                 alpha = 0.7f
@@ -313,16 +313,16 @@ class MainActivity : Activity() {
     private fun createSideButton(drawableRes: Int, color: Int, onClick: () -> Unit): Button {
         return Button(this).apply {
             setBackgroundColor(color)
-            setPadding(10, 10, 10, 10)
+            setPadding(6, 6, 6, 6)
             elevation = 8f
             stateListAnimator = null
-            layoutParams = LinearLayout.LayoutParams(90, 90).apply {
-                setMargins(6, 10, 6, 10)
+            layoutParams = LinearLayout.LayoutParams(70, 70).apply {
+                setMargins(4, 6, 4, 6)
             }
             
             // 设置图标
             val drawable = resources.getDrawable(drawableRes, null)
-            drawable.setBounds(0, 0, 70, 70)
+            drawable.setBounds(0, 0, 55, 55)
             setCompoundDrawables(null, drawable, null, null)
             
             setOnClickListener { 
