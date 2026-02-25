@@ -133,11 +133,18 @@ class MainActivity : Activity() {
 
         gameView = SnakeView(this)
 
-        // 底部控制区
+        // 底部控制区 - 使用 ScrollView 确保在小屏幕上也能显示
+        val controlScrollView = android.widget.ScrollView(this).apply {
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            )
+        }
+        
         val controlLayout = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
             setBackgroundColor(Color.parseColor("#2d2d2d"))
-            setPadding(24, 32, 24, 32)
+            setPadding(16, 16, 16, 16)
             gravity = Gravity.CENTER
         }
 
@@ -148,7 +155,7 @@ class MainActivity : Activity() {
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
-            ).apply { rightMargin = 32 }
+            ).apply { rightMargin = 16 }
         }
 
         val restartBtn = createSideButton(R.drawable.btn_restart, Color.parseColor("#ff6b6b")) {
@@ -223,7 +230,7 @@ class MainActivity : Activity() {
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
-            ).apply { leftMargin = 32 }
+            ).apply { leftMargin = 16 }
         }
 
         val speedBtn = createSideButton(R.drawable.btn_fast, Color.parseColor("#95e1d3")) {
@@ -245,11 +252,13 @@ class MainActivity : Activity() {
         controlLayout.addView(leftButtons)
         controlLayout.addView(arrowContainer)
         controlLayout.addView(rightButtons)
+        
+        controlScrollView.addView(controlLayout)
 
         gameContainer.addView(gameView)
         mainLayout.addView(infoLayout)
         mainLayout.addView(gameContainer)
-        mainLayout.addView(controlLayout)
+        mainLayout.addView(controlScrollView)
 
         setContentView(mainLayout)
 
@@ -259,16 +268,16 @@ class MainActivity : Activity() {
     private fun createArrowButton(drawableRes: Int, onClick: () -> Unit): Button {
         return Button(this).apply {
             setBackgroundColor(Color.parseColor("#4a4a4a"))
-            setPadding(16, 16, 16, 16)
+            setPadding(12, 12, 12, 12)
             elevation = 8f
             stateListAnimator = null
-            layoutParams = LinearLayout.LayoutParams(150, 150).apply {
-                setMargins(10, 10, 10, 10)
+            layoutParams = LinearLayout.LayoutParams(120, 120).apply {
+                setMargins(6, 6, 6, 6)
             }
             
             // 设置箭头图标
             val drawable = resources.getDrawable(drawableRes, null)
-            drawable.setBounds(0, 0, 110, 110)
+            drawable.setBounds(0, 0, 90, 90)
             setCompoundDrawables(null, drawable, null, null)
             
             setOnClickListener { 
@@ -282,7 +291,7 @@ class MainActivity : Activity() {
     private fun createCenterButton(text: String, onClick: () -> Unit): Button {
         return Button(this).apply {
             this.text = text
-            textSize = 48f
+            textSize = 36f
             gravity = Gravity.CENTER
             includeFontPadding = false
             setTextColor(Color.WHITE)
@@ -290,8 +299,8 @@ class MainActivity : Activity() {
             setPadding(0, 0, 0, 0)
             elevation = 8f
             stateListAnimator = null
-            layoutParams = LinearLayout.LayoutParams(150, 150).apply {
-                setMargins(10, 10, 10, 10)
+            layoutParams = LinearLayout.LayoutParams(120, 120).apply {
+                setMargins(6, 6, 6, 6)
             }
             setOnClickListener { 
                 alpha = 0.7f
@@ -304,16 +313,16 @@ class MainActivity : Activity() {
     private fun createSideButton(drawableRes: Int, color: Int, onClick: () -> Unit): Button {
         return Button(this).apply {
             setBackgroundColor(color)
-            setPadding(16, 16, 16, 16)
+            setPadding(10, 10, 10, 10)
             elevation = 8f
             stateListAnimator = null
-            layoutParams = LinearLayout.LayoutParams(130, 130).apply {
-                setMargins(10, 18, 10, 18)
+            layoutParams = LinearLayout.LayoutParams(90, 90).apply {
+                setMargins(6, 10, 6, 10)
             }
             
             // 设置图标
             val drawable = resources.getDrawable(drawableRes, null)
-            drawable.setBounds(0, 0, 96, 96)
+            drawable.setBounds(0, 0, 70, 70)
             setCompoundDrawables(null, drawable, null, null)
             
             setOnClickListener { 
@@ -323,6 +332,7 @@ class MainActivity : Activity() {
             }
         }
     }
+
 
     private fun updateScore() {
         val score = gameView.getScore()
