@@ -364,22 +364,51 @@ class SnakeView(context: Context) : View(context) {
             val offsetX = (width - cols * cellSize) / 2
             val offsetY = (height - rows * cellSize) / 2
 
+            // 绘制墙壁 - 增强显示
+            // 外边框（粗）
             canvas.drawRect(
                 offsetX.toFloat(), offsetY.toFloat(),
                 (offsetX + cols * cellSize).toFloat(), (offsetY + rows * cellSize).toFloat(),
                 borderPaint
             )
+            
+            // 内边框（细线，增强效果）
+            val innerBorderPaint = Paint().apply {
+                color = Color.parseColor("#888888")
+                strokeWidth = 2f
+                style = Paint.Style.STROKE
+                isAntiAlias = true
+            }
+            canvas.drawRect(
+                (offsetX + 3).toFloat(), (offsetY + 3).toFloat(),
+                (offsetX + cols * cellSize - 3).toFloat(), (offsetY + rows * cellSize - 3).toFloat(),
+                innerBorderPaint
+            )
 
             synchronized(snakeLock) {
-                // 优化：蛇太长时只绘制部分身体，但始终绘制头部
-                val maxSegmentsToDraw = 100  // 最多绘制100节
-                val drawStart = if (snake.size > maxSegmentsToDraw) snake.size - maxSegmentsToDraw else 0
+                // 优化：限制绘制数量，防止卡死
+                val maxSegmentsToDraw = 200  // 增加到200节
+                val totalSegments = snake.size
                 
-                for (i in drawStart until snake.size) {
+                // 如果太长，只绘制头部和部分身体
+                val segmentsToDraw = if (totalSegments > maxSegmentsToDraw) {
+                    // 绘制前100节（头部区域）+ 每隔N节绘制一个（尾部采样）
+                    val headSegments = 100
+                    val tailSampleRate = (totalSegments - headSegments) / (maxSegmentsToDraw - headSegments)
+                    
+                    (0 until headSegments).toList() + 
+                    (headSegments until totalSegments step maxOf(tailSampleRate, 1)).toList()
+                } else {
+                    (0 until totalSegments).toList()
+                }
+                
+                for (i in segmentsToDraw) {
+                    if (i >= snake.size) continue  // 安全检查
+                    
                     val (x, y) = snake[i]
                     
                     // 计算渐变色：从绿色(头)到蓝色(尾)
-                    val ratio = if (snake.size > 1) i.toFloat() / (snake.size - 1) else 0f
+                    val ratio = if (totalSegments > 1) i.toFloat() / (totalSegments - 1) else 0f
                     
                     // 头部：亮绿色 #00FF00 (0, 255, 0)
                     // 尾部：深蓝色 #0000FF (0, 0, 255)
@@ -389,72 +418,73 @@ class SnakeView(context: Context) : View(context) {
                     
                     val segmentPaint = Paint().apply {
                         color = Color.rgb(red, green, blue)
-                isAntiAlias = true
-                style = Paint.Style.FILL
-            }
+                        isAntiAlias = true
+                        style = Paint.Style.FILL
+                    }
             
-            canvas.drawRect(
-                (offsetX + x * cellSize + 2).toFloat(),
-                (offsetY + y * cellSize + 2).toFloat(),
-                (offsetX + (x + 1) * cellSize - 2).toFloat(),
-                (offsetY + (y + 1) * cellSize - 2).toFloat(),
-                segmentPaint
-            )
+                    canvas.drawRect(
+                        (offsetX + x * cellSize + 2).toFloat(),
+                        (offsetY + y * cellSize + 2).toFloat(),
+                        (offsetX + (x + 1) * cellSize - 2).toFloat(),
+                        (offsetY + (y + 1) * cellSize - 2).toFloat(),
+                        segmentPaint
+                    )
             
-            if (i == 0) {
-                // 眼睛
-                val eyeSize = cellSize / 6f
-                val eyeOffsetX = cellSize / 4f
-                val eyeOffsetY = cellSize / 3f
-                canvas.drawCircle(
-                    offsetX + x * cellSize + eyeOffsetX,
-                    offsetY + y * cellSize + eyeOffsetY,
-                    eyeSize, eyePaint
-                )
-                canvas.drawCircle(
-                    offsetX + (x + 1) * cellSize - eyeOffsetX,
-                    offsetY + y * cellSize + eyeOffsetY,
-                    eyeSize, eyePaint
-                )
+                    // 只为头部绘制眼睛和方向指示
+                    if (i == 0) {
+                        // 眼睛
+                        val eyeSize = cellSize / 6f
+                        val eyeOffsetX = cellSize / 4f
+                        val eyeOffsetY = cellSize / 3f
+                        canvas.drawCircle(
+                            offsetX + x * cellSize + eyeOffsetX,
+                            offsetY + y * cellSize + eyeOffsetY,
+                            eyeSize, eyePaint
+                        )
+                        canvas.drawCircle(
+                            offsetX + (x + 1) * cellSize - eyeOffsetX,
+                            offsetY + y * cellSize + eyeOffsetY,
+                            eyeSize, eyePaint
+                        )
                 
-                // 方向三角形（舌头）
-                val centerX = offsetX + x * cellSize + cellSize / 2f
-                val centerY = offsetY + y * cellSize + cellSize / 2f
-                val triangleSize = cellSize / 3f
+                        // 方向三角形（舌头）
+                        val centerX = offsetX + x * cellSize + cellSize / 2f
+                        val centerY = offsetY + y * cellSize + cellSize / 2f
+                        val triangleSize = cellSize / 3f
                 
-                val path = android.graphics.Path()
-                when (direction) {
-                    Pair(1, 0) -> { // 向右
-                        path.moveTo(centerX + triangleSize, centerY)
-                        path.lineTo(centerX, centerY - triangleSize / 2)
-                        path.lineTo(centerX, centerY + triangleSize / 2)
-                    }
-                    Pair(-1, 0) -> { // 向左
-                        path.moveTo(centerX - triangleSize, centerY)
-                        path.lineTo(centerX, centerY - triangleSize / 2)
-                        path.lineTo(centerX, centerY + triangleSize / 2)
-                    }
-                    Pair(0, 1) -> { // 向下
-                        path.moveTo(centerX, centerY + triangleSize)
-                        path.lineTo(centerX - triangleSize / 2, centerY)
-                        path.lineTo(centerX + triangleSize / 2, centerY)
-                    }
-                    Pair(0, -1) -> { // 向上
-                        path.moveTo(centerX, centerY - triangleSize)
-                        path.lineTo(centerX - triangleSize / 2, centerY)
-                        path.lineTo(centerX + triangleSize / 2, centerY)
+                        val path = android.graphics.Path()
+                        when (direction) {
+                            Pair(1, 0) -> { // 向右
+                                path.moveTo(centerX + triangleSize, centerY)
+                                path.lineTo(centerX, centerY - triangleSize / 2)
+                                path.lineTo(centerX, centerY + triangleSize / 2)
+                            }
+                            Pair(-1, 0) -> { // 向左
+                                path.moveTo(centerX - triangleSize, centerY)
+                                path.lineTo(centerX, centerY - triangleSize / 2)
+                                path.lineTo(centerX, centerY + triangleSize / 2)
+                            }
+                            Pair(0, 1) -> { // 向下
+                                path.moveTo(centerX, centerY + triangleSize)
+                                path.lineTo(centerX - triangleSize / 2, centerY)
+                                path.lineTo(centerX + triangleSize / 2, centerY)
+                            }
+                            Pair(0, -1) -> { // 向上
+                                path.moveTo(centerX, centerY - triangleSize)
+                                path.lineTo(centerX - triangleSize / 2, centerY)
+                                path.lineTo(centerX + triangleSize / 2, centerY)
+                            }
+                        }
+                        path.close()
+                
+                        val tonguePaint = Paint().apply {
+                            color = Color.RED
+                            style = Paint.Style.FILL
+                            isAntiAlias = true
+                        }
+                        canvas.drawPath(path, tonguePaint)
                     }
                 }
-                path.close()
-                
-                val tonguePaint = Paint().apply {
-                    color = Color.RED
-                    style = Paint.Style.FILL
-                    isAntiAlias = true
-                }
-                canvas.drawPath(path, tonguePaint)
-            }
-        }
             }  // synchronized 结束
 
             canvas.drawRect(
